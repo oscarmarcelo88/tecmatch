@@ -39,7 +39,7 @@ $replies = array("¿Quién esta más guapo?", "Mira, a quién le presentarías a
 //para hacer pruebas
 if ($message != null)
 {
- 
+  echo "fifi";
   $functions->sendLogin();
 
   /*$query = "select fb_id, first_name, fb_sender_id, profile_pic from Users where gender = 0 AND fb_id IS NOT NULL";
