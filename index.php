@@ -14,10 +14,10 @@ $db_name = "tecmatch_tecmatchdb";
 $db_username = "tecmatch_user";
 $db_pass = "Tecmatch88";
 */
-
+/*
 require 'Functions.php';
 require 'ConnectionDb.php';
-
+/*
 $db_host = "localhost";
 $db_name = "test_TecMatch";
 $db_username = "root";
@@ -31,7 +31,7 @@ $long = $data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload'
 $payload = $data['entry'][0]['messaging'][0]['postback']['payload'];
 $payloadParaContacto = $data['entry'][0]['messaging'][0]['message']['quick_reply']['payload'];
 
-$urlWebhook = "https://01ea0de0.ngrok.io/tecmatch/";
+$urlWebhook = "https://c9c59978.ngrok.io/tecmatch/";
 $functions = new Functions($rid, $message, $urlWebhook);
 $connectiondb = new ConnectionDb();
 $replies = array("¿Quién esta más guapo?", "Mira, a quién le presentarías a tu mamá?", "¿A cuál invitarías a salir?");
@@ -39,12 +39,10 @@ $replies = array("¿Quién esta más guapo?", "Mira, a quién le presentarías a
 //para hacer pruebas
 if ($message != null)
 {
-  echo "fifi";
-  $functions->sendLogin();
-
-  /*$query = "select fb_id, first_name, fb_sender_id, profile_pic from Users where gender = 0 AND fb_id IS NOT NULL";
-  $results = $connectiondb->Connection($query);
-  $functions->sendGenericMessage($results, 10158072716355707);*/
+  //$functions->mandarloLogin();
+  //$query = "select fb_id, first_name, fb_sender_id, profile_pic from Users where gender = 0 AND fb_id IS NOT NULL";
+  //$results = $connectiondb->Connection($array_query_pdo);
+  //$functions->sendGenericMessage($results, 10158034253445612, $pdo);
 
 }
 

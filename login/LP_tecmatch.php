@@ -62,7 +62,7 @@ h4  {
     session_start();
   
 
-    $url_using = "https://01ea0de0.ngrok.io/tecmatch";
+    $url_using = "https://c9c59978.ngrok.io/tecmatch";
 
 
     $rid = $_GET['id'];
@@ -76,7 +76,7 @@ h4  {
       'app_secret' => '0c360663f24dec79e8428e58cc2069ee',
       'default_graph_version' => 'v2.6',
     ]);
-    $redirect = "https://01ea0de0.ngrok.io/tecmatch/login/prueba.php?id=$rid";
+    $redirect = "https://c9c59978.ngrok.io/tecmatch/login/prueba.php?id=$rid";
     # Create the login helper object
     $helper = $fb->getRedirectLoginHelper();
     # Get the access token and catch the exceptions if any

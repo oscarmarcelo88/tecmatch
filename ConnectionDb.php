@@ -29,6 +29,6 @@ class ConnectionDb
 	  	$statement = $pdo->prepare($query);
 	  	$statement-> execute();
 	  	$results = $statement->fetchAll(PDO::FETCH_OBJ);
-	  	return $results;
+	  	return array($results, $pdo);
    }	
 }

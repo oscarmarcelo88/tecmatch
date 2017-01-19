@@ -96,7 +96,7 @@ class Functions
 	  $this->callSendApi($messageData);
 	}
 
-	function sendGenericMessage($results, $ganadorId) 
+	function sendGenericMessage($results, $ganadorId, $pdo) 
 	{
 
 	  $results2 = json_decode(json_encode($results), true);
@@ -112,7 +112,7 @@ class Functions
 
 	  $ganadorId2 = (string)$ganadorId;
 
-
+	  
 	  $statement = $pdo->prepare('select first_name, fb_sender_id, profile_pic from Users where fb_id ='.$ganadorId2);
 	  $statement-> execute();
 	  $results = $statement->fetchAll(PDO::FETCH_OBJ);
@@ -163,7 +163,7 @@ class Functions
 	      }
 	    }
 	 }";
-	 $this->callSendApi($messageData);
+	 $this->callSendApi($messageData);*/
 	}
 
 	public function callSendApi ($messageDataSend)
