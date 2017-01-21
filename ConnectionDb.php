@@ -7,10 +7,11 @@ class ConnectionDb
 	public $db_host = "tecmatch.co";
 	public $db_name = "tecmatch_tecmatchdb";
 	public $db_username = "tecmatch_user";
-	public $db_pass = "Tecmatch88";
-	*/
+	public $db_pass = "Tecmatch88";*/
+	
 
 	//BD prueba
+	
 	public $db_host = "localhost";
 	public $db_name = "test_TecMatch";
 	public $db_username = "root";
@@ -29,6 +30,7 @@ class ConnectionDb
 	  	$statement = $pdo->prepare($query);
 	  	$statement-> execute();
 	  	$results = $statement->fetchAll(PDO::FETCH_OBJ);
-	  	return array($results, $pdo);
+	  	return array($pdo, $results);
+	  	//return array($results, $pdo);
    }	
 }

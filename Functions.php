@@ -2,6 +2,7 @@
 
 class Functions
 {
+	
 	public $rid;
 	public $message;
 	
@@ -10,6 +11,8 @@ class Functions
 		$this->rid = $rid;
 		$this->message = $message;
 		$this->urlWebhook = $urlWebhook;
+		$this->connectiondb = $connectiondb = new ConnectionDb();
+		
 	}
 	
 	public function sendTextMessage ($reply, $numReplies)
@@ -96,10 +99,11 @@ class Functions
 	  $this->callSendApi($messageData);
 	}
 
-	function sendGenericMessage($results, $ganadorId, $pdo) 
+	function sendGenericMessage($results, $ganadorId) 
 	{
+	  $pdo = $results[0];
+	  $results2 = json_decode(json_encode($results[1]), true);
 
-	  $results2 = json_decode(json_encode($results), true);
 	  $num_results2 = count($results2);
 	  do {
 	  	$num1 = rand (0, ($num_results2-1));
@@ -112,11 +116,9 @@ class Functions
 
 	  $ganadorId2 = (string)$ganadorId;
 
-	  
-	  $statement = $pdo->prepare('select first_name, fb_sender_id, profile_pic from Users where fb_id ='.$ganadorId2);
-	  $statement-> execute();
-	  $results = $statement->fetchAll(PDO::FETCH_OBJ);
-	  $results3 = json_decode(json_encode($results), true);
+	  $query = 'select first_name, fb_sender_id, profile_pic from Users where fb_id='.$ganadorId2;
+	  $results_prueba = $this->connectiondb->Connection($query);
+	  $results3 = json_decode(json_encode($results_prueba[1]), true);
 
 	  $fb_id2 = $ganadorId;
 	  $first_name2 = $results3[0]['first_name'];
@@ -125,7 +127,7 @@ class Functions
 
 	  $messageData = "{
 	    'recipient': {
-	      'id': $rid
+	      'id': $this->rid
 	    },
 	    'message':{
 	      'attachment':{
@@ -163,7 +165,7 @@ class Functions
 	      }
 	    }
 	 }";
-	 $this->callSendApi($messageData);*/
+	 $this->callSendApi($messageData);
 	}
 
 	public function callSendApi ($messageDataSend)

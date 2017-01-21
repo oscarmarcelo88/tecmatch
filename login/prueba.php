@@ -16,7 +16,7 @@
   $db_username = "root";
   $db_pass = "root";
 
-  $url_using = "https://c9c59978.ngrok.io";
+  $url_using = "https://eb795afd.ngrok.io";
 
 	# Autoload the required files
 	require_once __DIR__ . '/vendor/autoload.php';
@@ -37,7 +37,7 @@
 	
 	$app_id = '585240351666649';
 	$app_secret = '0c360663f24dec79e8428e58cc2069ee';
-	$my_url = "https://c9c59978.ngrok.io/tecmatch/login/prueba.php?id=$rid";
+	$my_url = "https://eb795afd.ngrok.io/tecmatch/login/prueba.php?id=$rid";
 	$code = $_GET['code'];
 echo "esta es la id: ".$rid;
 $token_url = "https://graph.facebook.com/oauth/access_token?"
