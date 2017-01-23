@@ -31,7 +31,7 @@ $long = $data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload'
 $payload = $data['entry'][0]['messaging'][0]['postback']['payload'];
 $payloadParaContacto = $data['entry'][0]['messaging'][0]['message']['quick_reply']['payload'];
 
-$urlWebhook = "https://eb795afd.ngrok.io/tecmatch/";
+$urlWebhook = "https://7cb60b4c.ngrok.io/tecmatch/";
 $functions = new Functions($rid, $message, $urlWebhook);
 $connectiondb = new ConnectionDb();
 $replies = array("¿Quién esta más guapo?", "Mira, a quién le presentarías a tu mamá?", "¿A cuál invitarías a salir?");
@@ -39,10 +39,29 @@ $replies = array("¿Quién esta más guapo?", "Mira, a quién le presentarías a
 //para hacer pruebas
 if ($message != null)
 {
+  
+  //ya jala insertUSers con fb api bot
+  $functions->insertUser();
+
+
+  //jugar nuevo jalando
+  /*
+  $replies = array ("¿Quién esta más guapo?", "Mira, a quién le presentarías a tu mamá?", "A cuál de estos le tomarías screenshot a sus conversaciones?");
+  $functions->sendTextMessage($replies);
+  $functions->newGame();*/
+
+  //contactar jalando
+  /*
+  $replies = array ("Ya lo contacté, te aviso si me dice algo de ti. Mientras tú sigue jugando!", "Le mandé un mensaje, veamos a ver si contesta. Vamos a seguir jugando!", "Ya le mandé un mensaje, si vale la pena el te va a contactar.");
+  $functions->sendTextMessage($replies);
+  $replies = array ("¿Quién esta más guapo?", "Mira, a quién le presentarías a tu mamá?", "A cuál de estos le tomarías screenshot a sus conversaciones?");
+  $functions->sendTextMessage($replies);
+  $functions->contact(10154159479161406); */
+  
   //$functions->sendLogin();
-  $query = "select fb_id, first_name, fb_sender_id, profile_pic from Users where gender = 0 AND fb_id IS NOT NULL";
+  /*$query = "select fb_id, first_name, fb_sender_id, profile_pic from Users where gender = 0 AND fb_id IS NOT NULL";
   $results = $connectiondb->Connection($query);
-  $functions->sendGenericMessage($results, 10158034253445612);
+  $functions->sendGenericMessage($results, 10158034253445612);*/
   
 }
 

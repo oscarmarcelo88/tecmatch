@@ -33,4 +33,17 @@ class ConnectionDb
 	  	return array($pdo, $results);
 	  	//return array($results, $pdo);
    }	
+
+   public function ConnectionReturnPDO ()
+   {
+   		global $db_host, $db_name, $db_username, $db_pass;
+		try {
+	    	$pdo = new PDO ("mysql:host=".$db_host.";dbname=".$db_name."",$db_username,$db_pass);
+	  	} catch (PDOException $e) {
+
+	    	echo "Failed to get Base de Datos handle: " . $e->getMessage() . "\n";
+	    	exit;
+	  	}
+	  	return $pdo;
+   }
 }
