@@ -12,7 +12,6 @@ class Functions
 		$this->message = $message;
 		$this->urlWebhook = $urlWebhook;
 		$this->connectiondb = $connectiondb = new ConnectionDb();
-		
 	}
 	
 	public function sendTextMessage ($reply)
