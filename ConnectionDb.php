@@ -30,7 +30,7 @@ class ConnectionDb
 	  	$statement = $pdo->prepare($query);
 	  	$statement-> execute();
 	  	$results = $statement->fetchAll(PDO::FETCH_OBJ);
-	  	return array($pdo, $results);
+	  	return $results;
 	  	//return array($results, $pdo);
    }	
 

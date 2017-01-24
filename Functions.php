@@ -70,8 +70,9 @@ class Functions
 	  $this->callSendApi($messageData);
 	}
 
-	public function preguntaMensaje($replies, $numReplies)
+	public function preguntaMensaje($replies)
 	{
+	  $numReplies = count ($reply);
 	  $messageData = "{
 	    'recipient':{
 	      'id': $this->rid
@@ -90,8 +91,9 @@ class Functions
 	  $this->callSendApi($messageData);
 	}
 
-	public function askContact ($reply, $numReplies, $ganadorId)
+	public function askContact ($reply, $ganadorId)
 	{
+		$numReplies = count ($reply);
 		$messageData = "{
 	    'recipient':{
 	      'id': $this->rid
@@ -115,11 +117,11 @@ class Functions
 	  $this->callSendApi($messageData);
 	}
 
-	function sendGenericMessage($results, $ganadorId) 
+	public function sendGenericMessage($ganadorId) 
 	{
-	  $pdo = $results[0];
-	  $results2 = json_decode(json_encode($results[1]), true);
-
+	  $query = "select fb_id, first_name, fb_sender_id, profile_pic from Users where gender = 0 AND fb_id IS NOT NULL";
+ 	  $results = $this->connectiondb->Connection($query);
+	  $results2 = json_decode(json_encode($results), true);
 	  $num_results2 = count($results2);
 	  do {
 	  	$num1 = rand (0, ($num_results2-1));
@@ -130,13 +132,10 @@ class Functions
 	  $fg_sender_id1 = $results2[$num1]['fb_sender_id'];
 	  $profile_pic1 = $results2[$num1]['profile_pic'];
 
-	  $ganadorId2 = (string)$ganadorId;
-
 	  //código para acceder a la BD
-	  $query = 'select first_name, fb_sender_id, profile_pic from Users where fb_id='.$ganadorId2;
+	  $query = 'select first_name, fb_sender_id, profile_pic from Users where fb_id='.$ganadorId;
 	  $results_genericMsg = $this->connectiondb->Connection($query);
-	  $results3 = json_decode(json_encode($results_genericMsg[1]), true);
-
+	  $results3 = json_decode(json_encode($results_genericMsg), true);
 	  $fb_id2 = $ganadorId;
 	  $first_name2 = $results3[0]['first_name'];
 	  $fg_sender_id2 = $results3[0]['fb_sender_id'];
@@ -189,14 +188,14 @@ class Functions
 	{
       $query = 'select fb_id, first_name, fb_sender_id, profile_pic from Users where fb_id ='.$ganadorId;
 	  $results_contact = $this->connectiondb->Connection($query);
-	  $results3 = json_decode(json_encode($results_contact[1]), true);
+	  $results3 = json_decode(json_encode($results_contact), true);
 
 	  $fb_sender_id_ganador = $results3[0]['fb_sender_id'];
 	  $first_name2 = $results3[0]['first_name'];
 
 	  $query = 'select fb_id, first_name, fb_sender_id, profile_pic from Users where fb_sender_id ='.$this->rid;
 	  $results_contact2 = $this->connectiondb->Connection($query);
-	  $results2 = json_decode(json_encode($results_contact2[1]), true);
+	  $results2 = json_decode(json_encode($results_contact2), true);
 
 	  $fb_id1 = $results2[0]['fb_id'];
 	  $first_name1 = $results2[0]['first_name'];
@@ -243,7 +242,7 @@ class Functions
 	{	 
 	  $query = 'select fb_id, first_name, fb_sender_id, profile_pic from Users where gender = 0 AND fb_id IS NOT NULL';
 	  $results_newGame = $this->connectiondb->Connection($query);
-	  $results = json_decode(json_encode($results_newGame[1]), true);
+	  $results = json_decode(json_encode($results_newGame), true);
 
 	  $num_results = count($results);
 	  do{
@@ -309,8 +308,7 @@ class Functions
 	{
 	  $query = 'select * from Users where fb_sender_id = '.$this->rid;
 	  $results_insertUser = $this->connectiondb->Connection($query);
-	  $results = json_decode(json_encode($results_insertUser[1]), true);
-	  var_dump($results);
+	  $results = json_decode(json_encode($results_insertUser), true);
 
 	  $token ="EAAIUReNE8dkBAMMYqXANPKSsiGvXQHSCIZA5UZAKB3pYtQK1l4MItZCcw4Ko4ipZB1qJxg7Uiabc6US77CboUezlvVtZBq7oFNRB1J3lIDgbrEfq3wHZBkNiMd1R1G5Xq9ojKB8UZCBHK0jjfXYQNZA6U9qzFY0QCD6iQZBsRqFJy9AZDZD";
 	  $url = "https://graph.facebook.com/v2.6/$this->rid?fields=first_name,last_name,profile_pic,locale,timezone,gender&access_token=$token";
