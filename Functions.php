@@ -9,7 +9,7 @@ class Functions
 	public function __construct ($rid, $message, $urlWebhook)
 	{
 		$this->rid = $rid;
-		$this->message = $message;
+		$this->message = $message; //Ando probando si lo necesito
 		$this->urlWebhook = $urlWebhook;
 		$this->connectiondb = $connectiondb = new ConnectionDb();
 	}

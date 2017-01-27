@@ -14,6 +14,8 @@ $db_username = "tecmatch_user";
 $db_pass = "Tecmatch88";
 */
 
+
+//echo $_SERVER['DOCUMENT_ROOT'];
 require 'Functions.php';
 require 'ConnectionDb.php';
 
@@ -30,8 +32,10 @@ $long = $data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload'
 $payload = $data['entry'][0]['messaging'][0]['postback']['payload'];
 $payloadParaContacto = $data['entry'][0]['messaging'][0]['message']['quick_reply']['payload'];
 
-$urlWebhook = "https://ec7de6d5.ngrok.io/tecmatch/";
+$urlWebhook = "https://c3b4b7cb.ngrok.io/tecmatch/";
+
 $functions = new Functions($rid, $message, $urlWebhook);
+
 $connectiondb = new ConnectionDb();
 $replies = array("¿Quién esta más guapo?", "Mira, a quién le presentarías a tu mamá?", "¿A cuál invitarías a salir?");
 

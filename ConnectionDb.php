@@ -9,9 +9,7 @@ class ConnectionDb
 	public $db_username = "tecmatch_user";
 	public $db_pass = "Tecmatch88";*/
 	
-
-	//BD prueba
-	
+	//BD prueba	
 	public $db_host = "localhost";
 	public $db_name = "test_TecMatch";
 	public $db_username = "root";
