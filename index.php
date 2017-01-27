@@ -16,6 +16,7 @@ $db_pass = "Tecmatch88";
 
 
 //echo $_SERVER['DOCUMENT_ROOT'];
+
 require 'Functions.php';
 require 'ConnectionDb.php';
 
@@ -32,7 +33,7 @@ $long = $data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload'
 $payload = $data['entry'][0]['messaging'][0]['postback']['payload'];
 $payloadParaContacto = $data['entry'][0]['messaging'][0]['message']['quick_reply']['payload'];
 
-$urlWebhook = "https://c3b4b7cb.ngrok.io/tecmatch/";
+$urlWebhook = "https://71796ecd.ngrok.io/tecmatch/";
 
 $functions = new Functions($rid, $message, $urlWebhook);
 

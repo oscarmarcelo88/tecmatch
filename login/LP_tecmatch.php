@@ -61,7 +61,7 @@ h4  {
     # Start the session 
     session_start();
   
-    $url_using = "https://c3b4b7cb.ngrok.io";
+    $url_using = "https://71796ecd.ngrok.io";
     $rid = $_GET['id'];
 
     # Autoload the required files
@@ -112,7 +112,7 @@ h4  {
         }
         
     }else{
-        $permissions  = ['email'];
+        $permissions  = ['email','user_location','user_education_history'];
         $loginUrl = $helper->getLoginUrl($redirect,$permissions);
 ?>
         <a href=<?php echo $loginUrl; ?>>
