@@ -33,22 +33,21 @@ $long = $data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload'
 $payload = $data['entry'][0]['messaging'][0]['postback']['payload'];
 $payloadParaContacto = $data['entry'][0]['messaging'][0]['message']['quick_reply']['payload'];
 
-$urlWebhook = "https://71796ecd.ngrok.io/tecmatch/";
-
-$functions = new Functions($rid, $message, $urlWebhook);
+$urlWebhook = "https://2ba67926.ngrok.io/tecmatch/";
 
 $connectiondb = new ConnectionDb();
-$replies = array("¿Quién esta más guapo?", "Mira, a quién le presentarías a tu mamá?", "¿A cuál invitarías a salir?");
 
-list ($code, $ganadorId) = split ('/',$payload);
+list ($code, $ganadorId, $perdedorId) = split ('/',$payload);
 list ($code2, $ganadorIdContacto) = split ('/',$payloadParaContacto);
 
 //Para saber si ponemos el login y el getstarted msg
-  $query = 'select fb_id, first_name, gender from Users where fb_sender_id='.$rid;
+  $query = 'select fb_id, first_name, gender, sexual_orientation from Users where fb_sender_id='.$rid;
   $results = $connectiondb->Connection($query);
   $results2 = json_decode(json_encode($results), true);
+
+  $functions = new Functions($rid, $message, $urlWebhook, $results2[0]['sexual_orientation']);
+
   //para probarlo: $payload = "getstarted";
-  var_dump($results_GetStarted);
     if ($payload == "getstarted")
     {
       if ($results2[0]["gender"] == 1)
@@ -60,8 +59,8 @@ list ($code2, $ganadorIdContacto) = split ('/',$payloadParaContacto);
         $functions->sendTextMessage($replies);
       }
     }
-
-  if ($results2[0]['gender'] == 1 && $results2[0]['fb_id'] != null)
+//homo = 1, pero lo pongo como 0 para probar
+  if (($results2[0]['gender'] == 1 || $results2[0]['sexual_orientation'] == 0) && $results2[0]['fb_id'] != null)
   {
       //universal response whenever isn't another key message
       if ($message != null && $message != "Seguir Jugando" && $message != "Jugar" && $message != "Contactarlo" && $message != "Empezar" && $message != "Get Started ") 
@@ -72,6 +71,7 @@ list ($code2, $ganadorIdContacto) = split ('/',$payloadParaContacto);
       //choose the winner and we ask what to do
       if ($code == "gano") 
       {
+        $functions->saveGame($ganadorId, $perdedorId);
         $replies = array ("¡Buena elección! Qué quieres hacer:", "Ese era mi preferido! Ahora qué hacemos:", "¡Tienes buenos gustos! Lo contactamos?");
         $functions->askContact($replies, $ganadorId);
       }
@@ -81,13 +81,15 @@ list ($code2, $ganadorIdContacto) = split ('/',$payloadParaContacto);
         $ganadorId = $data['entry'][0]['messaging'][0]['message']['quick_reply']['payload'];
         $replies = array("¿Quién esta más guapo?", "Mira, a quién le presentarías a tu mamá?", "¿A cuál invitarías a salir?");
         $functions->sendTextMessage($replies);
-        $functions->sendGenericMessage($ganadorId);
+        $functions->newGame();
+        //$functions->sendGenericMessage($ganadorId); So everytime there will be different ppl
       }
       //play a new game
       if ($message == "Jugar")
       {
         $replies = array("¿Quién esta más guapo?", "Mira, a quién le presentarías a tu mamá?", "¿A cuál invitarías a salir?");
         $functions->sendTextMessage($replies);
+        echo "aqui ando";
         $functions->newGame();
       }
       //Contact the user 
@@ -101,10 +103,15 @@ list ($code2, $ganadorIdContacto) = split ('/',$payloadParaContacto);
         $functions->contact($ganadorIdContacto); 
       }
   }else{
-    if($message != null && $results2[0]['fb_id'] != null)
+    if($message != null && $results2[0]['fb_id'] != null && $message != "Puntaje")
     {
       $replies = array ("Tú tranquilo, te avisaremos cuando alguna chica te contacte ;) ", "Ahora te toca esperar... ;) ","Ahora te toca esperar... ;) ");
-      $functions->sendTextMessage($replies);
+      //$functions->sendTextMessage($replies);
+      $functions->sendLogin();
+    }
+    if ($message == "Puntaje")
+    {
+     $functions->score();
     }
   }
 

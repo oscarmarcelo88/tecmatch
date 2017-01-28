@@ -6,11 +6,12 @@ class Functions
 	public $rid;
 	public $message;
 	
-	public function __construct ($rid, $message, $urlWebhook)
+	public function __construct ($rid, $message, $urlWebhook, $sexual_orientation)
 	{
 		$this->rid = $rid;
 		$this->message = $message; //Ando probando si lo necesito
 		$this->urlWebhook = $urlWebhook;
+		$this->sexual_orientation = $sexual_orientation;
 		$this->connectiondb = $connectiondb = new ConnectionDb();
 	}
 	
@@ -89,6 +90,94 @@ class Functions
 	  }";
 	  $this->callSendApi($messageData);
 	}
+
+	public function saveGame ($ganadorId, $perdedorId)
+	{
+		$query = "select id from Games where ganadorId = ".$ganadorId." AND perdedorId = ".$perdedorId." AND jugadorId = ".$this->rid."";
+		$results = $this->connectiondb->Connection($query);
+		if ($results == null)
+		{	
+			$pdo = $this->connectiondb->ConnectionReturnPDO();
+			//jugadorId is the fb_sender_id of the player, ganadorid and perdedorid is the fb_id
+			$statement = $pdo->prepare("INSERT INTO Games(ganadorId, perdedorId, jugadorId) 
+	        	VALUES(?,?,?)");
+	    	$statement->execute(array($ganadorId, $perdedorId, $this->rid)); 
+	    }
+	}
+
+	public function score ()
+	{
+		//obtain the fb_id of the user
+		$query = "select fb_id from Users where fb_sender_id = ".$this->rid."";
+		$results = $this->connectiondb->Connection($query);
+		$results_ganador = json_decode(json_encode($results), true);
+
+		$query = "select perdedorId from Games where ganadorId = ".$results_ganador[0]['fb_id']."";
+		$results = $this->connectiondb->Connection($query);
+		$results_perdedor = json_decode(json_encode($results), true);
+
+		$cont = 0;
+
+		while ($results_perdedor[$cont] != null || $cont <= 5)
+		{
+			$this->showScore($results_ganador[0]['fb_id'], $results_perdedor[$cont]['perdedorId']);
+			$cont ++;
+		}
+	}
+
+	public function showScore($ganadorId, $perdedorId) 
+	{
+	  $query = "select fb_id, first_name, fb_sender_id, profile_pic from Users where fb_id = ".$ganadorId.""; 
+ 	  $results = $this->connectiondb->Connection($query);
+	  $results2 = json_decode(json_encode($results), true);
+
+	  $fb_id1 = $results2[0]['fb_id'];
+	  $first_name1 = $results2[0]['first_name'];
+	  $fg_sender_id1 = $results2[0]['fb_sender_id'];
+	  $profile_pic1 = $results2[0]['profile_pic'];
+
+	  $query = "select fb_id, first_name, fb_sender_id, profile_pic from Users where fb_id = ".$perdedorId."";
+ 	  $results4 = $this->connectiondb->Connection($query);
+	  $results3 = json_decode(json_encode($results4), true);
+
+	  $fb_id2 = $results3[0]['fb_id'];
+	  $first_name2 = $results3[0]['first_name'];
+	  $fg_sender_id2 = $results3[0]['fb_sender_id'];
+	  $profile_pic2 = $results3[0]['profile_pic'];
+
+	  $messageData = "{
+	    'recipient': {
+	      'id': $this->rid
+	    },
+	    'message':{
+	      'attachment':{
+	        'type':'template',
+	        'payload':{
+	          'template_type': 'generic',
+	          'elements': [{
+	            'title': '".$first_name1."',
+	            'image_url':'".$profile_pic1."',
+	            'item_url': 'https://www.facebook.com/".$fb_id1."',
+	            'subtitle':'Haz click para entrar a su perfil'
+	          },
+	          {
+	            'title':'".$first_name2."',          
+	            'image_url':'".$profile_pic2."',
+	            'item_url': 'https://www.facebook.com/".$fb_id2."',
+	             'subtitle':'Haz click para entrar a su perfil'
+	          }
+	          ]
+	        }
+	      }
+	    }
+	 }";
+
+	 //vamos a mandarle los ´último que ha ganado
+	$replies = array ("Mira, le ganaste a ".$first_name2."!", "Eres más galan que ".$first_name2." (;");
+	$this->sendTextMessage($replies);
+	 $this->callSendApi($messageData);
+	}
+
 
 	public function askContact ($reply, $ganadorId)
 	{
@@ -239,9 +328,13 @@ class Functions
 
 	public function newGame ()
 	{	 
-	  $query = 'select fb_id, first_name, fb_sender_id, profile_pic from Users where gender = 0 AND fb_id IS NOT NULL';
+	  echo "adentro es: ".$this->sexual_orientation;
+	  $query = 'select fb_id, first_name, fb_sender_id, profile_pic from Users where fb_id IS NOT NULL AND (gender = 0 OR sexual_orientation = '.$this->sexual_orientation.')';
+	  echo $query;
 	  $results_newGame = $this->connectiondb->Connection($query);
 	  $results = json_decode(json_encode($results_newGame), true);
+	  echo "apiasñld_ ";
+	  var_dump($results);
 
 	  $num_results = count($results);
 	  do{
@@ -278,7 +371,7 @@ class Functions
 	            'buttons': [{
 	              'type':'postback',
 	              'title':'Ganador',
-	              'payload': 'gano/".$fb_id1."'
+	              'payload': 'gano/".$fb_id1."/".$fb_id2."'
 	            }
 	            ]  
 	          },
@@ -291,7 +384,7 @@ class Functions
 	            'buttons': [{
 	              'type':'postback',
 	              'title':'Ganador',
-	              'payload': 'gano/".$fb_id2."'
+	              'payload': 'gano/".$fb_id2."/".$fb_id1."'
 	            }
 	            ]  
 	          }

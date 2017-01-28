@@ -14,7 +14,7 @@
   $db_username = "root";
   $db_pass = "root";
 
-  $url_using = "https://71796ecd.ngrok.io";
+  $url_using = "https://2ba67926.ngrok.io";
 
 	# Autoload the required files
 	require_once __DIR__ . '/vendor/autoload.php';
@@ -40,7 +40,7 @@
 
 	$app_id = '585240351666649';
 	$app_secret = '0c360663f24dec79e8428e58cc2069ee';
-	$my_url = "https://71796ecd.ngrok.io/tecmatch/login/prueba.php?id=$rid";
+	$my_url = "https://2ba67926.ngrok.io/tecmatch/login/prueba.php?id=$rid";
 	$code = $_GET['code'];
 
   $token_url = "https://graph.facebook.com/oauth/access_token?"
@@ -96,9 +96,11 @@
 		}
     $fb_id = $userNode->getId();
 
+    $sexual_orientation = 0;
+
     $query = ('select * from Users where fb_id = '.$fb_id);
     $results = $connectiondb->Connection($query);
-		insertUser($first_name, $last_name, $profile_pic, $email, $locale, $genderInt, $rid, $fb_id, $education, $location, $results, $connectiondb);
+		insertUser($first_name, $last_name, $profile_pic, $email, $locale, $genderInt, $rid, $fb_id, $education, $location, $results, $connectiondb, $sexual_orientation);
     
     if ($genderInt == 1)
     {
@@ -116,14 +118,14 @@
 		$url='https://m.me/1827124694175123';
   		echo '<META HTTP-EQUIV=REFRESH CONTENT="1; '.$url.'">';
 
-function insertUser ($first_name, $last_name, $profile_pic, $email, $locale, $genderInt, $rid, $fb_id, $education, $location, $results, $connectiondb)
+function insertUser ($first_name, $last_name, $profile_pic, $email, $locale, $genderInt, $rid, $fb_id, $education, $location, $results, $connectiondb, $sexual_orientation)
 	{
 	$pdo = $connectiondb->ConnectionReturnPDO();
 	if ($results[0]==null)
 	{	
-    	$statement = $pdo->prepare("INSERT INTO Users(fb_id, first_name, last_name, fb_sender_id, profile_pic, email, locale, studied_at, lives_in, gender)
-        	VALUES(?,?,?,?,?,?,?,?,?,?)");
-    	$statement->execute(array($fb_id, $first_name, $last_name, $rid, $profile_pic, $email, $locale, $education, $location, $genderInt)); 	
+    	$statement = $pdo->prepare("INSERT INTO Users(fb_id, first_name, last_name, fb_sender_id, profile_pic, email, locale, sexual_orientation, studied_at, lives_in, gender)
+        	VALUES(?,?,?,?,?,?,?,?,?,?,?)");
+    	$statement->execute(array($fb_id, $first_name, $last_name, $rid, $profile_pic, $email, $locale, $sexual_orientation, $education, $location, $genderInt)); 	
 	}else{
 		$sql = "UPDATE Users SET fb_id = :fb_id, 
         first_name = :first_name, 
@@ -131,7 +133,8 @@ function insertUser ($first_name, $last_name, $profile_pic, $email, $locale, $ge
         fb_sender_id = :fb_sender_id,  
         profile_pic = :profile_pic,
         email = :email,
-        locale = :locale, 
+        locale = :locale,
+        sexual_orientation = :sexual_orientation, 
         studied_at = :studied_at,  
         lives_in = :lives_in,  
         gender = :gender 
@@ -144,6 +147,7 @@ function insertUser ($first_name, $last_name, $profile_pic, $email, $locale, $ge
 		$stmt->bindParam(':profile_pic', $profile_pic, PDO::PARAM_STR); 
 		$stmt->bindParam(':email', $email, PDO::PARAM_STR); 
 		$stmt->bindParam(':locale', $locale, PDO::PARAM_STR);   
+		$stmt->bindParam(':sexual_orientation', $sexual_orientation, PDO::PARAM_INT);   
 		$stmt->bindParam(':studied_at', $education, PDO::PARAM_STR);   
 		$stmt->bindParam(':lives_in', $location, PDO::PARAM_STR);   
 		$stmt->bindParam(':gender', $genderInt, PDO::PARAM_INT);   
