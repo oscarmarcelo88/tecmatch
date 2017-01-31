@@ -33,12 +33,15 @@ $long = $data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload'
 $payload = $data['entry'][0]['messaging'][0]['postback']['payload'];
 $payloadParaContacto = $data['entry'][0]['messaging'][0]['message']['quick_reply']['payload'];
 
-$urlWebhook = "https://2ba67926.ngrok.io/tecmatch/";
+$urlWebhook = "https://bc95e302.ngrok.io/tecmatch/";
 
 $connectiondb = new ConnectionDb();
 
 list ($code, $ganadorId, $perdedorId) = split ('/',$payload);
-list ($code2, $ganadorIdContacto) = split ('/',$payloadParaContacto);
+list ($code2, $ganadorIdContacto, $perdedorIdContacto) = split ('/',$payloadParaContacto);
+
+list ($nickname, $messageToContact) = split (':',$message);
+
 
 //Para saber si ponemos el login y el getstarted msg
   $query = 'select fb_id, first_name, gender, sexual_orientation from Users where fb_sender_id='.$rid;
@@ -60,7 +63,7 @@ list ($code2, $ganadorIdContacto) = split ('/',$payloadParaContacto);
       }
     }
 //homo = 1, pero lo pongo como 0 para probar
-  if (($results2[0]['gender'] == 1 || $results2[0]['sexual_orientation'] == 0) && $results2[0]['fb_id'] != null)
+  if (($results2[0]['gender'] == 1 || $results2[0]['sexual_orientation'] == 0) && $results2[0]['fb_id'] != null && $messageToContact == null)
   {
       //universal response whenever isn't another key message
       if ($message != null && $message != "Seguir Jugando" && $message != "Jugar" && $message != "Contactarlo" && $message != "Empezar" && $message != "Get Started ") 
@@ -73,7 +76,7 @@ list ($code2, $ganadorIdContacto) = split ('/',$payloadParaContacto);
       {
         $functions->saveGame($ganadorId, $perdedorId);
         $replies = array ("¡Buena elección! Qué quieres hacer:", "Ese era mi preferido! Ahora qué hacemos:", "¡Tienes buenos gustos! Lo contactamos?");
-        $functions->askContact($replies, $ganadorId);
+        $functions->askContact($replies, $ganadorId, $perdedorId);
       }
       //send the 2 photos with a winner choosen before
       if ($message == "Seguir Jugando")
@@ -97,23 +100,32 @@ list ($code2, $ganadorIdContacto) = split ('/',$payloadParaContacto);
       {
         $replies = array ("Ya lo contacté, te aviso si me dice algo de ti. Mientras tú sigue jugando!", "Le mandé un mensaje, veamos a ver si contesta. Vamos a seguir jugando!", "Ya le mandé un mensaje, si vale la pena el te va a contactar.");
         $functions->sendTextMessage($replies);
+        $functions->changeRelationship($ganadorIdContacto, $perdedorIdContacto);
         $replies = array ("¿Quién esta más guapo?", "Mira, a quién le presentarías a tu mamá?", "A cuál de estos le tomarías screenshot a sus conversaciones?");
         $functions->sendTextMessage($replies);
         $functions->newGame();
         $functions->contact($ganadorIdContacto); 
       }
   }else{
-    if($message != null && $results2[0]['fb_id'] != null && $message != "Puntaje")
+    if($message != null && $results2[0]['fb_id'] != null && $message != "Puntaje" && $messageToContact == null)
     {
       $replies = array ("Tú tranquilo, te avisaremos cuando alguna chica te contacte ;) ", "Ahora te toca esperar... ;) ","Ahora te toca esperar... ;) ");
-      //$functions->sendTextMessage($replies);
-      $functions->sendLogin();
+      $functions->sendTextMessage($replies);
+      //Para pruebas $functions->sendLogin();
     }
     if ($message == "Puntaje")
     {
      $functions->score();
     }
   }
+
+  //send message to contact
+  if ($messageToContact != null)
+  {
+    $functions->sendTextMessageToContact($nickname, $messageToContact);
+  }
+
+
 
   if (strpos($message, 'puto') || strpos($message, 'pendeja') || strpos($message, 'puta') || strpos($message, 'pinche') || strpos($message, 'cabron') || strpos($message, 'pendejo') || strpos($message, 'culo') || strpos($message, 'mames'))
 {

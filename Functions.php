@@ -29,6 +29,49 @@ class Functions
   		$this->callSendApi($messageData);
 	}
 
+	public function sendTextMessageToContact ($nickname, $reply)
+	{
+		$query2 = 'select ganadorId, jugadorId, nickname1, nickname2 from Games WHERE (ganadorId ='.$this->rid.' OR jugadorId ='.$this->rid.') AND (nickname1 IS NOT NULL)';
+	  	$results_contact2 = $this->connectiondb->Connection($query2);
+	  	$results2 = json_decode(json_encode($results_contact2), true);
+	  	$recipientId = null;
+	  	
+	  	var_dump($results2);
+	  	foreach ($results2 as $value)
+	  	{
+	  		echo $value['jugadorId']." y ".$value['nickname1'];
+	  		if ($value['jugadorId'] == $this->rid && $value['nickname2'] == $nickname)
+	  		{
+	  			$recipientId = $value['ganadorId'];
+	  			echo "entras1";
+	  		}
+	  		echo $value['ganadorId']." y ".$value['nickname2'];
+	  		if ($value['ganadorId'] == $this->rid && $value['nickname1'] == $nickname)
+	  		{
+	  			$recipientId = $value['jugadorId'];
+	  			echo "entras2";
+	  		}
+	  	}
+
+
+	  	if ($recipientId == null)
+	  	{
+	  		$recipientId = $this->rid;
+	  		$reply = "Ese contacto no existe";
+	  		echo "entras3";
+	  	}
+
+		$messageData = "{
+    	'recipient': {
+      	'id': $recipientId
+    	},
+    	'message':{    
+      	'text': '".$reply."'
+   		 }
+    	}";
+  		$this->callSendApi($messageData);
+	}
+
 	public function sendTextMessageContact ($reply, $contactId)
 	{
 		$numReplies = count ($reply);
@@ -108,11 +151,11 @@ class Functions
 	public function score ()
 	{
 		//obtain the fb_id of the user
-		$query = "select fb_id from Users where fb_sender_id = ".$this->rid."";
+		$query = "select fb_sender_id from Users where fb_sender_id = ".$this->rid."";
 		$results = $this->connectiondb->Connection($query);
 		$results_ganador = json_decode(json_encode($results), true);
 
-		$query = "select perdedorId from Games where ganadorId = ".$results_ganador[0]['fb_id']."";
+		$query = "select perdedorId from Games where ganadorId = ".$results_ganador[0]['fb_sender_id']."";
 		$results = $this->connectiondb->Connection($query);
 		$results_perdedor = json_decode(json_encode($results), true);
 
@@ -120,14 +163,14 @@ class Functions
 
 		while ($results_perdedor[$cont] != null || $cont <= 5)
 		{
-			$this->showScore($results_ganador[0]['fb_id'], $results_perdedor[$cont]['perdedorId']);
+			$this->showScore($results_ganador[0]['fb_sender_id'], $results_perdedor[$cont]['perdedorId']);
 			$cont ++;
 		}
 	}
 
 	public function showScore($ganadorId, $perdedorId) 
 	{
-	  $query = "select fb_id, first_name, fb_sender_id, profile_pic from Users where fb_id = ".$ganadorId.""; 
+	  $query = "select fb_id, first_name, fb_sender_id, profile_pic from Users where fb_sender_id = ".$ganadorId.""; 
  	  $results = $this->connectiondb->Connection($query);
 	  $results2 = json_decode(json_encode($results), true);
 
@@ -136,7 +179,7 @@ class Functions
 	  $fg_sender_id1 = $results2[0]['fb_sender_id'];
 	  $profile_pic1 = $results2[0]['profile_pic'];
 
-	  $query = "select fb_id, first_name, fb_sender_id, profile_pic from Users where fb_id = ".$perdedorId."";
+	  $query = "select fb_id, first_name, fb_sender_id, profile_pic from Users where fb_sender_id = ".$perdedorId."";
  	  $results4 = $this->connectiondb->Connection($query);
 	  $results3 = json_decode(json_encode($results4), true);
 
@@ -179,7 +222,7 @@ class Functions
 	}
 
 
-	public function askContact ($reply, $ganadorId)
+	public function askContact ($reply, $ganadorId, $perdedorId)
 	{
 		$numReplies = count ($reply);
 		$messageData = "{
@@ -192,7 +235,7 @@ class Functions
 	        {
 	          'content_type':'text',
 	          'title':'Contactarlo',
-	          'payload':'contacto/".$ganadorId."'
+	          'payload':'contacto/".$ganadorId."/".$perdedorId."'
 	        },
 	        {
 	          'content_type':'text',
@@ -205,76 +248,10 @@ class Functions
 	  $this->callSendApi($messageData);
 	}
 
-	public function sendGenericMessage($ganadorId) 
-	{
-	  $query = "select fb_id, first_name, fb_sender_id, profile_pic from Users where gender = 0 AND fb_id IS NOT NULL";
- 	  $results = $this->connectiondb->Connection($query);
-	  $results2 = json_decode(json_encode($results), true);
-	  $num_results2 = count($results2);
-	  do {
-	  	$num1 = rand (0, ($num_results2-1));
-	  } while ($results2[$num1]['fb_id'] == $ganadorId || $rid == $results2[$num1]['fb_sender_id']);
-
-	  $fb_id1 = $results2[$num1]['fb_id'];
-	  $first_name1 = $results2[$num1]['first_name'];
-	  $fg_sender_id1 = $results2[$num1]['fb_sender_id'];
-	  $profile_pic1 = $results2[$num1]['profile_pic'];
-
-	  //código para acceder a la BD
-	  $query = 'select first_name, fb_sender_id, profile_pic from Users where fb_id='.$ganadorId;
-	  $results_genericMsg = $this->connectiondb->Connection($query);
-	  $results3 = json_decode(json_encode($results_genericMsg), true);
-	  $fb_id2 = $ganadorId;
-	  $first_name2 = $results3[0]['first_name'];
-	  $fg_sender_id2 = $results3[0]['fb_sender_id'];
-	  $profile_pic2 = $results3[0]['profile_pic'];
-
-	  $messageData = "{
-	    'recipient': {
-	      'id': $this->rid
-	    },
-	    'message':{
-	      'attachment':{
-	        'type':'template',
-	        'payload':{
-	          'template_type': 'generic',
-	          'elements': [{
-	            'title': '".$first_name1."',
-	          
-	            'image_url':'".$profile_pic1."',
-	            'item_url': 'https://www.facebook.com/".$fb_id1."',
-	            'subtitle':'Haz click para entrar a su perfil',
-	            'buttons': [{
-	              'type':'postback',
-	              'title':'Ganador',
-	              'payload': 'gano/".$fb_id1."'
-	            }
-	            ]  
-	          },
-	          {
-	            'title':'".$first_name2."',
-	          
-	            'image_url':'".$profile_pic2."',
-	            'item_url': 'https://www.facebook.com/".$fb_id2."',
-	             'subtitle':'Haz click para entrar a su perfil',
-	            'buttons': [{
-	              'type':'postback',
-	              'title':'Ganador',
-	              'payload': 'gano/".$fb_id2."'
-	            }
-	            ]  
-	          }
-	          ]
-	        }
-	      }
-	    }
-	 }";
-	 $this->callSendApi($messageData);
-	}
 	
 	public function contact ($ganadorId)
 	{
-      $query = 'select fb_id, first_name, fb_sender_id, profile_pic from Users where fb_id ='.$ganadorId;
+      $query = 'select fb_id, first_name, fb_sender_id, profile_pic from Users where fb_sender_id ='.$ganadorId;
 	  $results_contact = $this->connectiondb->Connection($query);
 	  $results3 = json_decode(json_encode($results_contact), true);
 
@@ -325,6 +302,56 @@ class Functions
 	  $this->callSendApi($messageData);
 	}
 
+	public function changeRelationship ($ganadorId, $perdedorId)
+	{
+		$nickname1 = $this->setNickname($ganadorId, "nickname1", $this->rid);
+		$nickname2 = $this->setNickname($this->rid, "nickname2", $ganadorId);
+		$pdo = $this->connectiondb->ConnectionReturnPDO();
+		$cont = 0;
+		$sql = "UPDATE Games SET contactar = :contactar, nickname1 = :nickname1, nickname2 = :nickname2 
+        WHERE ganadorId = :ganadorId AND perdedorId = :perdedorId AND jugadorId = :jugadorId";
+		$stmt = $pdo->prepare($sql);                                  
+		$stmt->bindParam(':contactar', $cont, PDO::PARAM_INT); 
+		$stmt->bindParam(':nickname1', $nickname1, PDO::PARAM_STR);
+		$stmt->bindParam(':nickname2', $nickname2, PDO::PARAM_STR);
+		$stmt->bindParam(':ganadorId', $ganadorId, PDO::PARAM_STR);
+		$stmt->bindParam(':perdedorId', $perdedorId, PDO::PARAM_STR);
+		$stmt->bindParam(':jugadorId', $this->rid, PDO::PARAM_STR);
+ 
+		$stmt->execute(); 
+	}
+	
+	
+	public function setNickname ($userId, $typeNick, $otherUserId)
+	{
+	  $query = 'select first_name from Users where fb_sender_id ='.$otherUserId;
+	  $results_contact = $this->connectiondb->Connection($query);
+	  $results = json_decode(json_encode($results_contact), true);
+	  $jugador_firstname = $results[0]['first_name'];
+	  
+	  $query2 = 'select '.$typeNick.', contactar from Games where ganadorId ='.$userId.' OR jugadorId ='.$userId.'';
+	  $results_contact2 = $this->connectiondb->Connection($query2);
+	  $results2 = json_decode(json_encode($results_contact2), true);
+	  $cont = 0;
+
+	  foreach ($results2 as $value) {
+	  	if ($jugador_firstname == $value[$typeNick])
+	  	{
+	  		if($value["contactar"] != 1)
+	  		{
+	  			$cont++;
+	  		}
+	  	}
+	  }
+
+	  if ($cont == 0)
+	  {
+	  	return $jugador_firstname;
+	  }else{
+	  	return $jugador_firstname."".$cont;
+	  }
+	 
+	}
 
 	public function newGame ()
 	{	 
@@ -333,8 +360,6 @@ class Functions
 	  echo $query;
 	  $results_newGame = $this->connectiondb->Connection($query);
 	  $results = json_decode(json_encode($results_newGame), true);
-	  echo "apiasñld_ ";
-	  var_dump($results);
 
 	  $num_results = count($results);
 	  do{
@@ -345,12 +370,12 @@ class Functions
 	  $fb_id1 = $results[$num1]['fb_id'];
 
 	  $first_name1 = $results[$num1]['first_name'];
-	  $fg_sender_id1 = $results[$num1]['fb_sender_id'];
+	  $fb_sender_id1 = $results[$num1]['fb_sender_id'];
 	  $profile_pic1 = $results[$num1]['profile_pic'];
 
 	  $fb_id2 = $results[$num2]['fb_id'];
 	  $first_name2 = $results[$num2]['first_name'];
-	  $fg_sender_id2 = $results[$num2]['fb_sender_id'];
+	  $fb_sender_id2 = $results[$num2]['fb_sender_id'];
 	  $profile_pic2 = $results[$num2]['profile_pic'];
 	 
 	  $messageData = "{
@@ -371,7 +396,7 @@ class Functions
 	            'buttons': [{
 	              'type':'postback',
 	              'title':'Ganador',
-	              'payload': 'gano/".$fb_id1."/".$fb_id2."'
+	              'payload': 'gano/".$fb_sender_id1."/".$fb_sender_id2."'
 	            }
 	            ]  
 	          },
@@ -384,7 +409,7 @@ class Functions
 	            'buttons': [{
 	              'type':'postback',
 	              'title':'Ganador',
-	              'payload': 'gano/".$fb_id2."/".$fb_id1."'
+	              'payload': 'gano/".$fb_sender_id2."/".$fb_sender_id1."'
 	            }
 	            ]  
 	          }
