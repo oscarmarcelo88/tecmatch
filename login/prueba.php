@@ -14,7 +14,7 @@
   $db_username = "root";
   $db_pass = "root";
 
-  $url_using = "https://bc95e302.ngrok.io";
+  $url_using = "https://d65ab169.ngrok.io";
 
 	# Autoload the required files
 	require_once __DIR__ . '/vendor/autoload.php';
@@ -33,14 +33,14 @@
 	  'app_secret' => '0c360663f24dec79e8428e58cc2069ee',
 	  'default_graph_version' => 'v2.6',
 	]);
-	
-  $redirect = "https://m.me/1827124694175123";
+
+  $redirect = "https://www.messenger.com/closeWindow/?image_url={https://3ae39190.ngrok.io/tecmatch/login/cover.png}&display_text={Gracias por registrarte}";
 	# Create the login helper object
 	$helper = $fb->getRedirectLoginHelper();
 
 	$app_id = '585240351666649';
 	$app_secret = '0c360663f24dec79e8428e58cc2069ee';
-	$my_url = "https://bc95e302.ngrok.io/tecmatch/login/prueba.php?id=$rid";
+	$my_url = "https://d65ab169.ngrok.io/tecmatch/login/prueba.php?id=$rid";
 	$code = $_GET['code'];
 
   $token_url = "https://graph.facebook.com/oauth/access_token?"
@@ -66,7 +66,7 @@
 		  echo 'Facebook SDK returned an error: ' . $e->getMessage();
 		  exit;
 		}
-		var_dump($userNode);
+
 		$first_name = $userNode->getfirstname();
 		$last_name = $userNode->getlastname();		
 		$profile_pic = 'https://graph.facebook.com/'.$userNode->getId().'/picture?width=200';
@@ -74,16 +74,18 @@
 		$locale = $userNode["locale"];
 		$location = $userNode['location']['name'];
 		$email = $userNode->getemail();
-		echo "el correo es: ".$email;
+	
 		
 		$cont = 0;
 		//concatenate all the education in one string
 		while ($userNode['education'][$cont]['school']['name'] != null)
 		{
-			$education = $education." ".$userNode['education'][$cont]['school']['name'];
+			$education = $education."/".$userNode['education'][$cont]['school']['name'];
 			$cont ++;
 		}
-
+		
+		$channel = $functions->setChannel($location, $education);
+	
 		//poner un int a los genders para que sea más fácil manejarlos 0=male, 1=female, 2=cualquier otro
 		if ($gender == 'male')
 		{
@@ -100,7 +102,7 @@
 
     $query = ('select * from Users where fb_id = '.$fb_id);
     $results = $connectiondb->Connection($query);
-		insertUser($first_name, $last_name, $profile_pic, $email, $locale, $genderInt, $rid, $fb_id, $education, $location, $results, $connectiondb, $sexual_orientation);
+	insertUser($first_name, $last_name, $profile_pic, $email, $locale, $genderInt, $rid, $fb_id, $education, $location, $channel, $results, $connectiondb, $sexual_orientation);
     
     if ($genderInt == 1)
     {
@@ -115,17 +117,17 @@
      $functions->sendTextMessage($replies);
     }
 
-		$url='https://m.me/1827124694175123';
+  		$url = "https://www.messenger.com/closeWindow/?image_url={https://3ae39190.ngrok.io/tecmatch/login/cover.png}&display_text={Gracias por registrarte}";
   		echo '<META HTTP-EQUIV=REFRESH CONTENT="1; '.$url.'">';
 
-function insertUser ($first_name, $last_name, $profile_pic, $email, $locale, $genderInt, $rid, $fb_id, $education, $location, $results, $connectiondb, $sexual_orientation)
+function insertUser ($first_name, $last_name, $profile_pic, $email, $locale, $genderInt, $rid, $fb_id, $education, $location, $channel, $results, $connectiondb, $sexual_orientation)
 	{
 	$pdo = $connectiondb->ConnectionReturnPDO();
 	if ($results[0]==null)
 	{	
-    	$statement = $pdo->prepare("INSERT INTO Users(fb_id, first_name, last_name, fb_sender_id, profile_pic, email, locale, sexual_orientation, studied_at, lives_in, gender)
-        	VALUES(?,?,?,?,?,?,?,?,?,?,?)");
-    	$statement->execute(array($fb_id, $first_name, $last_name, $rid, $profile_pic, $email, $locale, $sexual_orientation, $education, $location, $genderInt)); 	
+    	$statement = $pdo->prepare("INSERT INTO Users(fb_id, first_name, last_name, fb_sender_id, profile_pic, email, locale, sexual_orientation, studied_at, lives_in, location, gender)
+        	VALUES(?,?,?,?,?,?,?,?,?,?,?,?)");
+    	$statement->execute(array($fb_id, $first_name, $last_name, $rid, $profile_pic, $email, $locale, $sexual_orientation, $education, $location, $channel, $genderInt)); 	
 	}else{
 		$sql = "UPDATE Users SET fb_id = :fb_id, 
         first_name = :first_name, 
@@ -136,7 +138,8 @@ function insertUser ($first_name, $last_name, $profile_pic, $email, $locale, $ge
         locale = :locale,
         sexual_orientation = :sexual_orientation, 
         studied_at = :studied_at,  
-        lives_in = :lives_in,  
+        lives_in = :lives_in, 
+        location = :location,  
         gender = :gender 
         WHERE fb_sender_id = :fb_sender_id";
 		$stmt = $pdo->prepare($sql);                                  
@@ -150,6 +153,7 @@ function insertUser ($first_name, $last_name, $profile_pic, $email, $locale, $ge
 		$stmt->bindParam(':sexual_orientation', $sexual_orientation, PDO::PARAM_INT);   
 		$stmt->bindParam(':studied_at', $education, PDO::PARAM_STR);   
 		$stmt->bindParam(':lives_in', $location, PDO::PARAM_STR);   
+		$stmt->bindParam(':location', $channel, PDO::PARAM_STR);   
 		$stmt->bindParam(':gender', $genderInt, PDO::PARAM_INT);   
 		$stmt->execute(); 
 	}
