@@ -14,7 +14,7 @@
   $db_username = "root";
   $db_pass = "root";
 
-  $url_using = "https://d65ab169.ngrok.io";
+  $url_using = "https://986d70e2.ngrok.io";
 
 	# Autoload the required files
 	require_once __DIR__ . '/vendor/autoload.php';
@@ -40,7 +40,7 @@
 
 	$app_id = '585240351666649';
 	$app_secret = '0c360663f24dec79e8428e58cc2069ee';
-	$my_url = "https://d65ab169.ngrok.io/tecmatch/login/prueba.php?id=$rid";
+	$my_url = "https://986d70e2.ngrok.io/tecmatch/login/prueba.php?id=$rid";
 	$code = $_GET['code'];
 
   $token_url = "https://graph.facebook.com/oauth/access_token?"
@@ -106,15 +106,20 @@
     
     if ($genderInt == 1)
     {
-      $replies = array("¿Quién esta más guapo?", "Mira, a quién le presentarías a tu mamá?", "¿A cuál invitarías a salir?");  
-      $functions->sendTextMessage($replies);
-      $functions->newGame();
+      $functions->eraseInte();
+	  $functions->questionsAssign(null, null, null, null, "grr", null);
+
+	  //$replies = array("A quién prefieres?? 😏😏", "Cena en tu casa, llevarías a: ", "Con quién saldrías?? 😜😜", "Quién se te hace más guapo?? 😍😍", "Quién te gusta más??", "Quién pasaría el filtro de tus amigas?? 😳😳");
+      //$functions->sendTextMessage($replies);
+      //$functions->newGame();
     }
 
     if($genderInt == 0)
     {
-     $replies = array ("Tú tranquilo, te avisaremos cuando alguna chica te contacte ;) ", "Ahora te toca esperar... ;)");
-     $functions->sendTextMessage($replies);
+      $functions->eraseInte();
+      $functions->questionsAssign(null, null, null, null, "grr", null);
+     /*$replies = array ("Tú tranquilo, te avisaremos cuando alguna chica te contacte ;) ", "Ahora te toca esperar... ;)");
+     $functions->sendTextMessage($replies);*/
     }
 
   		$url = "https://www.messenger.com/closeWindow/?image_url={https://3ae39190.ngrok.io/tecmatch/login/cover.png}&display_text={Gracias por registrarte}";

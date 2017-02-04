@@ -40,20 +40,15 @@ class Functions
 	  	$results2 = json_decode(json_encode($results_contact2), true);
 	  	$recipientId = null;
 	  	
-	  	var_dump($results2);
 	  	foreach ($results2 as $value)
 	  	{
-	  		echo $value['jugadorId']." y ".$value['nickname1'];
 	  		if ($value['jugadorId'] == $this->rid && $value['nickname2'] == $nickname)
 	  		{
 	  			$recipientId = $value['ganadorId'];
-	  			echo "entras1";
 	  		}
-	  		echo $value['ganadorId']." y ".$value['nickname2'];
 	  		if ($value['ganadorId'] == $this->rid && $value['nickname1'] == $nickname)
 	  		{
 	  			$recipientId = $value['jugadorId'];
-	  			echo "entras2";
 	  		}
 	  	}
 
@@ -62,7 +57,6 @@ class Functions
 	  	{
 	  		$recipientId = $this->rid;
 	  		$reply = "Ese contacto no existe";
-	  		echo "entras3";
 	  	}
 
 		$messageData = "{
@@ -102,7 +96,7 @@ class Functions
 	        "type":"template",
 	        "payload":{
 	          "template_type":"button",
-	          "text":"Necesitamos que te registres por Facebook. No te preocupes no publicaremos nada ni compartiremos tu información sin tu consentimiento.",
+	          "text":"Para comenzar a jugar da click en hacer login. Por tu seguridad ninguna información será publicada ni compartida sin tu consentimiento.",
 	          "buttons":[
 	            {
 	              "type":"web_url",
@@ -280,7 +274,7 @@ class Functions
 	      'id': $this->rid
 	    },
 	    'message':{
-	      'text':'¿Fumar? 🚬🚬',
+	      'text':'¿Fumas? 🚬🚬',
 	      'quick_replies':[
 	       	{
 	          'content_type':'text',
@@ -309,13 +303,40 @@ class Functions
 		  break;
 		    case 'inte2':
 		    $this->changeInte($answer, 'inte2');
+		    if ($answer == 5)
+		    {
+		    	$replies = array ("Para estar claros, es Netflix sin chill... ☺");
+		    	$this->sendTextMessage($replies);
+		    }
 		    $inte1 = 2;
 		  break;
 		    case 'inte3':
 		    $this->changeInte($answer, 'inte3');
+		   if ($this->gender == 0 && $this->sexual_orientation == 0)
+		    {
+				$replies = array ("Tú tranquilo, te avisaré cuando alguna chica te contacte 👌👌 ", "Ahora te toca esperar... 😉😉 ");			     
+				$this->sendTextMessage($replies);
+        	} else {
+                $replies = array ("Perfecto, ya podemos comenzar 🎉🎉", "Que te parece si empezamos ;)", "Estás lista?? 😉");
+	        	$this->preguntaMensaje($replies);
+        	}
 		    $inte1 = 3;
 		  break;
 		}
+
+		//validation if the type smt random on the questions
+		if ($interest1 == null && $code2 == null)
+		{
+			$inte1 = null;
+		} else if ($interest2 == null && $code2 == null)
+			{
+				$inte1 = 1;
+			} else if ($interest3 == null && $code2 == null)
+				{
+					$inte1 = 2;
+				}
+
+
 		    if (($interest1 == null && $inte1 == null) && $message != null)
 		    {
 		      $this->questionsInte1();
@@ -506,12 +527,6 @@ class Functions
 	          
 	            'image_url':'".$profile_pic1."',
 	            'item_url': 'https://www.facebook.com/".$fb_id1."',
-	            'buttons': [{
-	                'type':'web_url',
-	                'url':'https://facebook.com/".$fb_id1."',
-	                'title':'Contactar!'
-	            }
-	            ]  
 	          }
 	          ]
 	        }
@@ -521,7 +536,7 @@ class Functions
 	 //este if es para que no se loopee, no sé porque lo hace.
 	 if ($first_name1 != null)
 	 {
-	  $replies = array ("Que onda ".$first_name2."! Mira, ".$first_name1." te agrego como contacto! Ella ya dio el primer paso te toca a ti! Para mandarle un mensaje tienes que tienes que escribir: ".$nickname.":MENSAJE","Que onda ".$first_name2."! Te agrego ".$first_name1.". Ella quiere que le escribas. Para mandarle un mensaje tienes que tienes que escribir: ".$nickname.":MENSAJE", "Oye galán, andas con todo! ".$first_name1." te agrego a sus contactos. Para mandarle un mensaje tienes que tienes que escribir: ".$nickname.":MENSAJE");
+	  $replies = array ("Que onda ".$first_name2."! ".$first_name1." te agregó como contacto! Ella ya dio el primer paso te toca a ti! 😏 Para hablar con ella escribe su nombre seguido de dos puntos y tu mensaje será enviado (Ej. ".$nickname.":MENSAJE)","Que onda ".$first_name2."! Te agregó ".$first_name1.". Deberías escribirle 😉 . Para hablar con ella escribe su nombre seguido de dos puntos y tu mensaje será enviado (Ej. ".$nickname.":MENSAJE)", "Oye galán, andas con todo! 8| ".$first_name1." te agregó a sus contactos. Para hablar con ella escribe su nombre seguido de dos puntos y tu mensaje será enviado (Ej. ".$nickname.":MENSAJE)");
 	  $this->sendTextMessageContact ($replies, $fb_sender_id_ganador);
 	 }
 	  $this->callSendApi($messageData);
@@ -539,6 +554,7 @@ class Functions
 
 	public function changeRelationship ($ganadorId, $perdedorId)
 	{
+		//we need to assign the 2 nicknames based who is the winner and the player
 		$nickname1 = $this->setNickname($ganadorId, "nickname1", $this->rid);
 		$nickname2 = $this->setNickname($this->rid, "nickname2", $ganadorId);
 		$pdo = $this->connectiondb->ConnectionReturnPDO();
@@ -560,15 +576,12 @@ class Functions
 		$edu_array = explode("/",$education);
 		foreach($edu_array as $key=>$value)
 		{
-			echo "entras2 ".$value;
 			$query = "select type, name from Locations where name = '".$value."'";
 
 	  		$results = $this->connectiondb->Connection($query);
 	  		$results2 = json_decode(json_encode($results), true);
-	  		var_dump($results2);
 	  		if ($results != null)
 	  		{
-	  			echo "entas chido";
 	  			$results2 = json_decode(json_encode($results), true);
 	  			$channel = $results2[0]['type'];
 	  		}
@@ -592,20 +605,83 @@ class Functions
 		return $channel;
 	}
 
+	public function changeChannel ($location, $education)
+	{
+		$edu_array = explode("/",$education);
+		foreach($edu_array as $key=>$value)
+		{
+			$query = "select type, name from Locations where name = '".$value."'";
+	  		$results = $this->connectiondb->Connection($query);
+	  		$results2 = json_decode(json_encode($results), true);
+	  		if ($results != null)
+	  		{
+	  			$results2 = json_decode(json_encode($results), true);
+	  			$channel_university = $results2[0]['type'];
+	  		}
+		}
+
+			$query = "select type from Locations where name ='".$location."'";
+	  		$results = $this->connectiondb->Connection($query);
+	  		if ($results != null)
+	  		{
+	  			$results2 = json_decode(json_encode($results), true);
+	  			$channel_city = $results2[0]['type'];
+	  		}
+			$channel_general = "General";
+
+			$messageData = "{
+		    'recipient':{
+		      'id': $this->rid
+		    },
+		    'message':{
+		      'text':'A qué canal te quieres cambiar: ',
+		      'quick_replies':[
+		       	{
+		          'content_type':'text',
+		          'title':'".$channel_general."',
+		          'payload':'channelChange/".$channel_general."'
+		        },
+		        {
+		          'content_type':'text',
+		          'title':'".$channel_city."',
+		          'payload':'channelChange/".$channel_city."'
+		        },
+		        {
+		          'content_type':'text',
+		          'title':'".$channel_university."',
+		          'payload':'channelChange/".$channel_city."'
+		        }
+		      ]
+		    }
+		  }";
+		  $this->callSendApi($messageData);
+	}
+
+	public function changeChannel2 ($channel)
+	{
+		$pdo = $this->connectiondb->ConnectionReturnPDO();
+		$sql = "UPDATE Users SET location = :location WHERE fb_sender_id = :fb_sender_id";
+		$stmt = $pdo->prepare($sql);                                  
+		$stmt->bindParam(':location', $channel, PDO::PARAM_STR); 
+		$stmt->bindParam(':fb_sender_id', $this->rid, PDO::PARAM_STR);
+		$stmt->execute(); 
+	}
+
 	public function setNickname ($userId, $typeNick, $otherUserId)
 	{
+	  
 	  $query = 'select first_name from Users where fb_sender_id ='.$otherUserId;
 	  $results_contact = $this->connectiondb->Connection($query);
 	  $results = json_decode(json_encode($results_contact), true);
 	  $jugador_firstname = $results[0]['first_name'];
 	  
-	  $query2 = 'select '.$typeNick.', contactar from Games where ganadorId ='.$userId.' OR jugadorId ='.$userId.'';
+	  $query2 = 'select '.$typeNick.', contactar, ganadorId, jugadorId from Games where ganadorId ='.$userId.' OR jugadorId ='.$userId.'';
 	  $results_contact2 = $this->connectiondb->Connection($query2);
 	  $results2 = json_decode(json_encode($results_contact2), true);
 	  $cont = 0;
 
 	  foreach ($results2 as $value) {
-	  	if ($jugador_firstname == $value[$typeNick])
+	  	if ($jugador_firstname == $value[$typeNick] && ($value["ganadorId"] != $otherUserId && $value["jugadorId"] != $otherUserId))
 	  	{
 	  		if($value["contactar"] != 1)
 	  		{
@@ -624,80 +700,96 @@ class Functions
 
 	public function newGame ()
 	{	 
-	  //$query = 'select fb_id, first_name, fb_sender_id, profile_pic from Users where fb_id IS NOT NULL AND (gender = 0 OR sexual_orientation = 0) AND location = ITESM';
+		if($this->sexual_orientation >= 1)
+		{
+			$query = "select fb_id, first_name, fb_sender_id, profile_pic, inte1, inte2, inte3 from Users where fb_id IS NOT NULL AND sexual_orientation = '".$this->sexual_orientation."' AND location = '".$this->channelUser."'";
+		} else {
+			$query = "select fb_id, first_name, fb_sender_id, profile_pic, inte1, inte2, inte3 from Users where fb_id IS NOT NULL AND gender = 0 AND sexual_orientation = '".$this->sexual_orientation."' AND location = '".$this->channelUser."'";
+		}	
+		  $results_newGame = $this->connectiondb->Connection($query);
+		  $results = json_decode(json_encode($results_newGame), true);
+		  
+		  $numcount = count ($results);
 
-	  $query = "select fb_id, first_name, fb_sender_id, profile_pic from Users where fb_id IS NOT NULL AND (gender = 0 OR sexual_orientation = '".$this->sexual_orientation."') AND location = '".$this->channelUser."'";
-	  $results_newGame = $this->connectiondb->Connection($query);
-	  $results = json_decode(json_encode($results_newGame), true);
-	  
-	  $numcount = count ($results);
+		 if (count($results) > 2) //So there are at least 3 ppl in channel 2 ppl and the user.
+		 {
+			  $num_results = count($results);
+			  do{
+			  $num1 = rand (0, ($num_results-1));
+			  $num2 = rand (0, ($num_results-1));
+			  } while ($num1 == $num2 || $this->rid == $results[$num1]['fb_sender_id'] || $this->rid == $results[$num2]['fb_sender_id']); //para que no se repitan y que no salga el usuario
 
-	 if (count($results) > 2) //So there are at least 3 ppl in channel 2 ppl and the user.
-	 {
-		  $num_results = count($results);
-		  do{
-		  $num1 = rand (0, ($num_results-1));
-		  $num2 = rand (0, ($num_results-1));
-		  } while ($num1 == $num2 || $this->rid == $results[$num1]['fb_sender_id'] || $this->rid == $results[$num2]['fb_sender_id']); //para que no se repitan y que no salga el usuario
+			  $fb_id1 = $results[$num1]['fb_id'];
 
-		  $fb_id1 = $results[$num1]['fb_id'];
+			  $first_name1 = $results[$num1]['first_name'];
+			  $fb_sender_id1 = $results[$num1]['fb_sender_id'];
+			  $profile_pic1 = $results[$num1]['profile_pic'];
 
-		  $first_name1 = $results[$num1]['first_name'];
-		  $fb_sender_id1 = $results[$num1]['fb_sender_id'];
-		  $profile_pic1 = $results[$num1]['profile_pic'];
+			  $fb_id2 = $results[$num2]['fb_id'];
+			  $first_name2 = $results[$num2]['first_name'];
+			  $fb_sender_id2 = $results[$num2]['fb_sender_id'];
+			  $profile_pic2 = $results[$num2]['profile_pic'];
+			 
+			  $messageData = "{
+			    'recipient': {
+			      'id': $this->rid
+			    },
+			    'message':{
+			      'attachment':{
+			        'type':'template',
+			        'payload':{
+			          'template_type': 'generic',
+			          'elements': [{
+			            'title': '".$first_name1."',
+			          
+			            'image_url':'".$profile_pic1."',
+			            'item_url': 'https://www.facebook.com/".$fb_id1."',
+			            'subtitle':'Haz click para entrar a su perfil',
+			            'buttons': [{
+			              'type':'postback',
+			              'title':'Ganador',
+			              'payload': 'gano/".$fb_sender_id1."/".$fb_sender_id2."'
+			            }
+			            ]  
+			          },
+			          {
+			            'title':'".$first_name2."',
+			          
+			            'image_url':'".$profile_pic2."',
+			            'item_url': 'https://www.facebook.com/".$fb_id2."',
+			            'subtitle':'Haz click para entrar a su perfil',
+			            'buttons': [{
+			              'type':'postback',
+			              'title':'Ganador',
+			              'payload': 'gano/".$fb_sender_id2."/".$fb_sender_id1."'
+			            }
+			            ]  
+			          }
+			          ]
+			        }
+			      }
+			    }
+			 }";
+			 	$replies = array("A quién prefieres?? 😏😏", "Cena en tu casa, llevarías a: ", "Con quién saldrías?? 😜😜", "Quién se te hace más guapo?? 😍😍", "Quién te gusta más??", "Quién pasaría el filtro de tus amigas?? 😳😳");
+		        $this->sendTextMessage($replies);
 
-		  $fb_id2 = $results[$num2]['fb_id'];
-		  $first_name2 = $results[$num2]['first_name'];
-		  $fb_sender_id2 = $results[$num2]['fb_sender_id'];
-		  $profile_pic2 = $results[$num2]['profile_pic'];
-		 
-		  $messageData = "{
-		    'recipient': {
-		      'id': $this->rid
-		    },
-		    'message':{
-		      'attachment':{
-		        'type':'template',
-		        'payload':{
-		          'template_type': 'generic',
-		          'elements': [{
-		            'title': '".$first_name1."',
-		          
-		            'image_url':'".$profile_pic1."',
-		            'item_url': 'https://www.facebook.com/".$fb_id1."',
-		            'subtitle':'Haz click para entrar a su perfil',
-		            'buttons': [{
-		              'type':'postback',
-		              'title':'Ganador',
-		              'payload': 'gano/".$fb_sender_id1."/".$fb_sender_id2."'
-		            }
-		            ]  
-		          },
-		          {
-		            'title':'".$first_name2."',
-		          
-		            'image_url':'".$profile_pic2."',
-		            'item_url': 'https://www.facebook.com/".$fb_id2."',
-		            'subtitle':'Haz click para entrar a su perfil',
-		            'buttons': [{
-		              'type':'postback',
-		              'title':'Ganador',
-		              'payload': 'gano/".$fb_sender_id2."/".$fb_sender_id1."'
-		            }
-		            ]  
-		          }
-		          ]
-		        }
-		      }
-		    }
-		 }";
-		 	$replies = array("¿Quién esta más guapo?", "Mira, a quién le presentarías a tu mamá?", "¿A cuál invitarías a salir?");
-	        $this->sendTextMessage($replies);
-		 	$this->callSendApi($messageData);
-		}else{
-			$replies = array("Por el momento no se encuentra nadie en el canal ".$this->channelUser.", vuelve a intentar más tarde");
-	        $this->sendTextMessage($replies);
-		}
+		        $this->displayBio($results[$num1]['inte1'], $results[$num1]['inte2'], $results[$num1]['inte3'], $results[$num1]['first_name']);
+		        $this->displayBio($results[$num2]['inte1'], $results[$num2]['inte2'], $results[$num2]['inte3'], $results[$num2]['first_name']);
+
+			 	$this->callSendApi($messageData);
+			}else{
+				$replies = array("Por el momento no se encuentra nadie en el canal ".$this->channelUser.", vuelve a intentar más tarde");
+		        $this->sendTextMessage($replies);
+			}
+	}
+
+	public function displayBio ($inte1, $inte2, $inte3, $firstnameUser)
+	{
+		$inte1_arr = array ("algo serio", "algo casual", "amigos", "diversion");
+		$inte2_arr = array ("ir al antro", "ir al cine", "estar con la familia", "haver ejercicio", "ver netflix", "leer");
+		$inte3_arr = array ("fuma 🚬🚬", "no fuma 🚭🚭");
+		$replies = array ("".$firstnameUser." esta buscando ".$inte1_arr[($inte1-1)].", lo que más le gusta hacer en lo fines es ".$inte2_arr[($inte2-1)]." y ".$inte3_arr[($inte3-1)]);
+	    $this->sendTextMessage($replies);
 	}
 
 	public function insertUser ()
