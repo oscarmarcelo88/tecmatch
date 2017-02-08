@@ -5,7 +5,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body {background: #FBF1E7;}
+body {background: #26438B;}
 
 div.header1 {
 	background-image:url("cover.png");
@@ -29,17 +29,9 @@ img.logo
     margin-right: auto;
 
 }
-img.mex
-{
-  padding-top: 5px;
-     position: center;
-     display: block;
-    margin-left: auto;
-    margin-right: auto
-}
 
 img {
-	padding-top: 5px;
+	padding-top: 10px;
 	  display: block;
     width: 100%;
     height: auto;
@@ -47,12 +39,11 @@ img {
 
 h4  {
     color: white;
-    text-shadow: 0 0 6px #000000;
     font-family: Helvetica;
-    font-size: 120%;
+    font-size: 100%;
     text-align: center;
  
-    padding-top: 50px;
+    padding-top: 100px;
 
         padding-left: 10px;
     padding-right: 10px;
@@ -61,16 +52,16 @@ h4  {
 </style>
 </head>
 <body>
-<img src="Alice_logo.png" alt="" style="width:40px;height:60px;">
+<img src="logo.png" alt="" style="width:130px;height:37px;">
 <div class="header1">
-<h4><p>Hi Alice es un juego basado en la inversión de roles.</p> Para comenzar a jugar da click en Log in. Por tu seguridad ninguna información será publicada ni compartida sin tu consentimiento.</h4>
+<h4>Necesitamos que te registres con Facebook para poder utilizar Tec Match. Tec Match nunca publicará nada sin tu concentimiento.</h4>
 <div class="button" style="">
 <?php
     
     # Start the session 
     session_start();
   
-    $url_using = "https://08bde3ac.ngrok.io";
+    $url_using = "https://d3fc1717.ngrok.io";
     $rid = $_GET['id'];
 
     # Autoload the required files
@@ -122,7 +113,7 @@ h4  {
         
     }else{
         $permissions  = ['email','user_location','user_education_history'];
-        $loginUrl = $helper->getLoginUrl($redirect, $permissions);
+        $loginUrl = $helper->getLoginUrl($redirect,$permissions);
 ?>
         <a href=<?php echo $loginUrl; ?>>
             <img class="logo" src="fb_button.png" >
@@ -132,9 +123,6 @@ h4  {
 ?>
 </div>
 </div>
-<div>
-<img class="mex" src="hechomex.png" alt="" style="width:55px;height:55px;">
 
-</div>
 </body>
 </html>

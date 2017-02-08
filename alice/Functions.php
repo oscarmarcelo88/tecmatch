@@ -18,30 +18,6 @@ class Functions
 		$this->connectiondb = $connectiondb = new ConnectionDb();
 	}
 	
-	
-	public function codigoRojo ($rid)
-	{
-		$query = "select fb_sender_id from Users";
-		$results_contacts = $this->connectiondb->Connection($query);
-		$results = json_decode(json_encode($results_contacts), true);
-		 var_dump($results);	
-		foreach ($results as $value)
-		{
-			$messageData = "{
-	    	'recipient': {
-	      	'id': '".$value['fb_sender_id']."'
-	    	},
-	    	'message':{    
-	      	'text': 'Prueba de super mensaje'
-	   		 }
-	    	}";
-
-	  		$this->callSendApi($messageData);
-		}
-
-	
-	}
-
 	public function sendTextMessage ($reply)
 	{
 		$numReplies = count ($reply);
@@ -96,12 +72,20 @@ class Functions
 	  		$recipientId = $this->rid;
 	  		$reply = "Ese contacto no existe";
 	  	}else{
-		  	$replies = array ("".$nickname_sender." te escribió:".$reply."");
+		  	$replies = array ("".$nickname_sender." te escribió:".$reply.".");
 		  	$this->sendTextMessageNewUser($replies, $recipientId);
 		  	$replies = array ("Para responderle escribe su nombre seguido de dos puntos y tu mensaje será enviado (Ej. ".$nickname_sender.":MENSAJE)");
 		  	$this->sendTextMessageNewUser($replies, $recipientId);
 	  	}
-
+		/*$messageData = "{
+    	'recipient': {
+      	'id': $recipientId
+    	},
+    	'message':{    
+      	'text': '".$reply."'
+   		 }
+    	}";
+  		$this->callSendApi($messageData);*/
 	}
 
 	public function sendTextMessageContact ($reply, $contactId)
@@ -153,7 +137,7 @@ class Functions
 	      'id': $this->rid
 	    },
 	    'message':{
-	      'text':'".$replies[rand(0,($numReplies-1))]."',
+	      'text':'".$replies[rand(0,$numReplies)]."',
 	      'quick_replies':[
 	        {
 	          'content_type':'text',
@@ -174,11 +158,11 @@ class Functions
 	      'id': $this->rid
 	    },
 	    'message':{
-	      'text':'".$replies[rand(0,($numReplies-1))]."',
+	      'text':'".$replies[rand(0,$numReplies)]."',
 	      'quick_replies':[
 	        {
 	          'content_type':'text',
-	          'title':'Puntaje 🏆',
+	          'title':'Puntaje',
 	          'payload':'puntaje'
 	        }
 	      ]
@@ -198,12 +182,12 @@ class Functions
 	      'quick_replies':[
 	       	{
 	          'content_type':'text',
-	          'title':'Hombres 👨',
+	          'title':'Hombres',
 	          'payload':'sexhombres'
 	        },
 	        {
 	          'content_type':'text',
-	          'title':'Mujeres 👩',
+	          'title':'Mujeres',
 	          'payload':'sexmujeres'
 	        }
 	      ]
@@ -232,22 +216,22 @@ class Functions
 	      'quick_replies':[
 	       	{
 	          'content_type':'text',
-	          'title':'Algo serio 💏',
+	          'title':'Algo serio',
 	          'payload':'inte1/1'
 	        },
 	        {
 	          'content_type':'text',
-	          'title':'Casual 😘',
+	          'title':'Casual',
 	          'payload':'inte1/2'
 	        },
 	        {
 	          'content_type':'text',
-	          'title':'Amigos 😃',
+	          'title':'Amigos',
 	          'payload':'inte1/3'
 	        },
 	        {
 	          'content_type':'text',
-	          'title':'Diversión 😜',
+	          'title':'Diversión',
 	          'payload':'inte1/4'
 	        }
 	      ]
@@ -267,32 +251,32 @@ class Functions
 	      'quick_replies':[
 	       	{
 	          'content_type':'text',
-	          'title':'Antro 💃',
+	          'title':'Antro',
 	          'payload':'inte2/1'
 	        },
 	        {
 	          'content_type':'text',
-	          'title':'Cine 🎬',
+	          'title':'Cine',
 	          'payload':'inte2/2'
 	        },
 	        {
 	          'content_type':'text',
-	          'title':'Familia 🏡',
+	          'title':'Familia',
 	          'payload':'inte2/3'
 	        },
 	        {
 	          'content_type':'text',
-	          'title':'Ejercicio 🚲',
+	          'title':'Ejercicio',
 	          'payload':'inte2/4'
 	        },
 	        {
 	          'content_type':'text',
-	          'title':'Netflix 📺',
+	          'title':'Netflix',
 	          'payload':'inte2/5'
 	        },
 	        {
 	          'content_type':'text',
-	          'title':'Leer 📖',
+	          'title':'Leer',
 	          'payload':'inte2/6'
 	        }
 	      ]
@@ -308,16 +292,16 @@ class Functions
 	      'id': $this->rid
 	    },
 	    'message':{
-	      'text':'¿Fumas? ',
+	      'text':'¿Fumas? 🚬🚬',
 	      'quick_replies':[
 	       	{
 	          'content_type':'text',
-	          'title':'Sí 🚬',
+	          'title':'Sí',
 	          'payload':'inte3/1'
 	        },
 	        {
 	          'content_type':'text',
-	          'title':'No 🚭',
+	          'title':'No',
 	          'payload':'inte3/2'
 	        }
 	      ]
@@ -346,14 +330,12 @@ class Functions
 		  break;
 		    case 'inte3':
 		    $this->changeInte($answer, 'inte3');
-		    $replies = array ("Te encuentras en el canal ".$this->channelUser.", para cambiar de canal utiliza el menu en la parte inferior izquierda.");
-		    $this->sendTextMessage($replies);
 		   if ($this->gender == 0 && $this->sexual_orientation == 0)
 		    {
-				$replies = array ("Tú tranquilo, te avisaré cuando alguna chica te contacte 👌 ", "Ahora te toca esperar... 😉 ");			     
+				$replies = array ("Tú tranquilo, te avisaré cuando alguna chica te contacte 👌👌 ", "Ahora te toca esperar... 😉😉 ");			     
 				$this->sendTextMessage($replies);
         	} else {
-                $replies = array ("Perfecto, ya podemos comenzar 🎉", "Que te parece si empezamos ;)", "Estás lista?? 😉");
+                $replies = array ("Perfecto, ya podemos comenzar 🎉🎉", "Que te parece si empezamos ;)", "Estás lista?? 😉");
 	        	$this->preguntaMensaje($replies);
         	}
 		    $inte1 = 3;
@@ -422,89 +404,75 @@ class Functions
 	    }
 	}
 
-	public function showContacts ($cont)
+	public function score ()
 	{
-		$query = 'select ganadorId, jugadorId, nickname1, nickname2 from Games WHERE (ganadorId ='.$this->rid.' OR jugadorId ='.$this->rid.') AND (nickname1 IS NOT NULL)';
-		$results_contacts = $this->connectiondb->Connection($query);
-		$results = json_decode(json_encode($results_contacts), true);
-		foreach ($results as $key=>$value)
+		$query = "select perdedorId from Games where ganadorId = ".$results_ganador[0]['fb_sender_id']."";
+		$results = $this->connectiondb->Connection($query);
+		$results_perdedor = json_decode(json_encode($results), true);
+
+		$cont = 0;
+
+		if ($results_perdedor[0] == null)
 		{
-			echo "el key es: ".$key;
-			if ($key >= $cont && $key < $cont+6)
-			{
-				if ($value['jugadorId'] == $this->rid)
-				{
-					$nickname = $value['nickname2'];
-					$this->showContacts2($value['ganadorId'], $nickname);
-				}
-				if ($value['ganadorId'] == $this->rid)
-				{
-					$nickname = $value['nickname1'];
-					$this->showContacts2($value['jugadorId'], $nickname);
-				}
-			}
-			if ($key >= $cont+6)
-			{
-				$hayMas = 1;
-			}else
-			{
-				$hayMas = 0;
-			}
+			$replies = array ("Aun no hay resultados, intenta más tarde", "Es muy pronto para resultados, inténtalo más tarde");
+			$this->sendTextMessage($replies);
+		}else{
+			$replies = array ("A ellos les has ganado: ");
+			$this->sendTextMessage($replies);
 		}
 
-		$cont = $cont + 6;
-		if ($hayMas == 1)
+		while ($results_perdedor[$cont] != null && $cont <= 5)
 		{
-			$messageData = "{
-			    'recipient':{
-			      'id': $this->rid
-			    },
-			    'message':{
-			      'text':'Para hablar con un contacto escribe su nombre seguido de dos puntos y tu mensaje será enviado (Ej. NOMBRE:MENSAJE)',
-			      'quick_replies':[
-			       	{
-			          'content_type':'text',
-			          'title':'Cargar más',
-			          'payload':'contact/".$cont."'
-			        }
-			      ]
-			    }
-			  }";
-			  $this->callSendApi($messageData);
-		} else {
-			$reply = array ("Para hablar con un contacto escribe su nombre seguido de dos puntos y tu mensaje será enviado (Ej. NOMBRE:MENSAJE)");
-			$this->sendTextMessage($reply);
+			$this->showScore($results_ganador[0]['fb_sender_id'], $results_perdedor[$cont]['perdedorId']);
+			$cont ++;
 		}
 	}
 
-	public function showContacts2 ($contactId, $nickname)
+	public function showScore($ganadorId, $perdedorId) 
 	{
-		$query = "select profile_pic, fb_id from Users where fb_sender_id = ".$contactId."";
-		$results_contacts = $this->connectiondb->Connection($query);
-		$results = json_decode(json_encode($results_contacts), true);
+	  $query = "select fb_id, first_name, fb_sender_id, profile_pic from Users where fb_sender_id = ".$ganadorId.""; 
+ 	  $results = $this->connectiondb->Connection($query);
+	  $results2 = json_decode(json_encode($results), true);
 
-		$messageData = "{
-			    'recipient': {
-			      'id': $this->rid
-			    },
-			    'message':{
-			      'attachment':{
-			        'type':'template',
-			        'payload':{
-			          'template_type': 'generic',
-			          'elements': [{
-			            'title':'".$nickname."',          
-			            'image_url':'".$results[0]['profile_pic']."',
-			            'item_url': 'https://www.facebook.com/".$results[0]['fb_id']."',
-			             'subtitle':'Haz click para entrar a su perfil'
-			          }
-			          ]
-			        }
-			      }
-			    }
-			 }";
-			 $this->callSendApi($messageData);
+	  $fb_id1 = $results2[0]['fb_id'];
+	  $first_name1 = $results2[0]['first_name'];
+	  $fg_sender_id1 = $results2[0]['fb_sender_id'];
+	  $profile_pic1 = $results2[0]['profile_pic'];
+
+	  $query = "select fb_id, first_name, fb_sender_id, profile_pic from Users where fb_sender_id = ".$perdedorId."";
+ 	  $results4 = $this->connectiondb->Connection($query);
+	  $results3 = json_decode(json_encode($results4), true);
+
+	  $fb_id2 = $results3[0]['fb_id'];
+	  $first_name2 = $results3[0]['first_name'];
+	  $fg_sender_id2 = $results3[0]['fb_sender_id'];
+	  $profile_pic2 = $results3[0]['profile_pic'];
+
+	  $messageData = "{
+	    'recipient': {
+	      'id': $this->rid
+	    },
+	    'message':{
+	      'attachment':{
+	        'type':'template',
+	        'payload':{
+	          'template_type': 'generic',
+	          'elements': [{
+	            'title':'".$first_name2."',          
+	            'image_url':'".$profile_pic2."',
+	            'item_url': 'https://www.facebook.com/".$fb_id2."',
+	             'subtitle':'Haz click para entrar a su perfil'
+	          }
+	          ]
+	        }
+	      }
+	    }
+	 }";
+
+	 //vamos a mandarle los ´último que ha ganado
+	 $this->callSendApi($messageData);
 	}
+
 
 	public function askContact ($reply, $ganadorId, $perdedorId)
 	{
@@ -514,7 +482,7 @@ class Functions
 	      'id': $this->rid
 	    },
 	    'message':{
-	      'text':'".$reply[rand(0,($numReplies-1))]."',
+	      'text':'".$reply[rand(0,$numReplies)]."',
 	      'quick_replies':[
 	        {
 	          'content_type':'text',
@@ -529,7 +497,6 @@ class Functions
 	      ]
 	    }
 	  }";
-
 	  $this->callSendApi($messageData);
 	}
 
@@ -682,13 +649,12 @@ class Functions
 	  		}
 			$channel_general = "General";
 
-			//$echo "esdsta es: ".$channel_city;
 			$messageData = "{
 		    'recipient':{
 		      'id': $this->rid
 		    },
 		    'message':{
-		      'text':'A qué canal te quieres cambiars: ',
+		      'text':'A qué canal te quieres cambiar: ',
 		      'quick_replies':[
 		       	{
 		          'content_type':'text',
@@ -703,7 +669,7 @@ class Functions
 		        {
 		          'content_type':'text',
 		          'title':'".$channel_university."',
-		          'payload':'channelChange/".$channel_university."'
+		          'payload':'channelChange/".$channel_city."'
 		        }
 		      ]
 		    }
@@ -824,7 +790,7 @@ class Functions
 			      }
 			    }
 			 }";
-			 	$replies = array("A quién prefieres?? 😏", "Cena en tu casa, llevarías a: ", "Con quién saldrías?? 😜", "Quién se te hace más guapo?? 😍", "Quién te gusta más??", "Quién pasaría el filtro de tus amigas?? 😳");
+			 	$replies = array("A quién prefieres?? 😏😏", "Cena en tu casa, llevarías a: ", "Con quién saldrías?? 😜😜", "Quién se te hace más guapo?? 😍😍", "Quién te gusta más??", "Quién pasaría el filtro de tus amigas?? 😳😳");
 		        $this->sendTextMessage($replies);
 
 		        $this->displayBio($results[$num1]['inte1'], $results[$num1]['inte2'], $results[$num1]['inte3'], $results[$num1]['first_name']);
@@ -841,7 +807,7 @@ class Functions
 	{
 		$inte1_arr = array ("algo serio", "algo casual", "amigos", "diversion");
 		$inte2_arr = array ("ir al antro", "ir al cine", "estar con la familia", "haver ejercicio", "ver netflix", "leer");
-		$inte3_arr = array ("fuma 🚬", "no fuma 🚭");
+		$inte3_arr = array ("fuma 🚬🚬", "no fuma 🚭🚭");
 		$replies = array ("".$firstnameUser." esta buscando ".$inte1_arr[($inte1-1)].", lo que más le gusta hacer en lo fines es ".$inte2_arr[($inte2-1)]." y ".$inte3_arr[($inte3-1)]);
 	    $this->sendTextMessage($replies);
 	}
@@ -885,241 +851,6 @@ class Functions
 	          VALUES(?,?,?,?,?,?)");
 	      $statement->execute(array($first_name, $last_name, $this->rid, $profile_pic, $locale, $genderInt)); 
 	  }
-	}
-
-	public function score ()
-	{
-		$query = "select perdedorId from Games where ganadorId = ".$this->rid."";
-		$results = $this->connectiondb->Connection($query);
-		$results_perdedor = json_decode(json_encode($results), true);
-
-		if ($results_perdedor[0] == null)
-		{
-			$replies = array ("Aun no hay resultados, intenta más tarde", "Es muy pronto para resultados, inténtalo más tarde");
-			$this->sendTextMessage($replies);
-		}else{
-			$replies = array ("A ellos les has ganado: 💪");
-			$this->sendTextMessage($replies);
-		}
-
-		if ($results_perdedor[0] != null)
-		{
-			$this->showScore($results_perdedor);
-		}
-	}
-
-	public function showScore($results_perdedor) 
-	{
-	    $fb_id1 = [];
-		$first_name1 = [];
-		$fg_sender_id1 = [];
-		$profile_pic1 = [];
-
-	  $numUsers = count ($results_perdedor);
-	  $cont = 0;
-	 while ($cont <= 5 && $cont != $numUsers)
-	 {
-		  $query = "select fb_id, first_name, fb_sender_id, profile_pic from Users where fb_sender_id = ".$results_perdedor[$numUsers-1-$cont]['perdedorId'].""; 
-	 	  $results = $this->connectiondb->Connection($query);
-		  $results2 = json_decode(json_encode($results), true);
-		  $fb_id1 [$cont] = $results2[0]['fb_id'];
-		  $first_name1 [$cont] = $results2[0]['first_name'];
-		  $fg_sender_id1 [$cont] = $results2[0]['fb_sender_id'];
-		  $profile_pic1 [$cont] = $results2[0]['profile_pic'];
-
-		  $cont++;
-	 }
-		 switch ($numUsers)
-		  {
-		  	case 1:
-			  $messageData = "{
-			    'recipient': {
-			      'id': $this->rid
-			    },
-			    'message':{
-			      'attachment':{
-			        'type':'template',
-			        'payload':{
-			          'template_type': 'generic',
-			          'elements': [{
-			            'title':'".$first_name1[0]."',          
-			            'image_url':'".$profile_pic1[0]."',
-			            'item_url': 'https://www.facebook.com/".$fb_id1[0]."',
-			             'subtitle':'Haz click para entrar a su perfil'
-			          }
-			          ]
-			        }
-			      }
-			    }
-			 }";
-			 break;
-			 case 2:
-			  $messageData = "{
-			    'recipient': {
-			      'id': $this->rid
-			    },
-			    'message':{
-			      'attachment':{
-			        'type':'template',
-			        'payload':{
-			          'template_type': 'generic',
-			          'elements': [
-			          {
-			            'title':'".$first_name1[0]."',          
-			            'image_url':'".$profile_pic1[0]."',
-			            'item_url': 'https://www.facebook.com/".$fb_id1[0]."',
-			             'subtitle':'Haz click para entrar a su perfil'
-			          },
-			          {
-			            'title':'".$first_name1[1]."',          
-			            'image_url':'".$profile_pic1[1]."',
-			            'item_url': 'https://www.facebook.com/".$fb_id1[1]."',
-			             'subtitle':'Haz click para entrar a su perfil'
-			          }
-			          ]
-			        }
-			      }
-			    }
-			 }";
-			 break;
-			 case 3:
-			 	$messageData = "{
-			    'recipient': {
-			      'id': $this->rid
-			    },
-			    'message':{
-			      'attachment':{
-			        'type':'template',
-			        'payload':{
-			          'template_type': 'generic',
-			          'elements': [
-			          {
-			            'title':'".$first_name1[0]."',          
-			            'image_url':'".$profile_pic1[0]."',
-			            'item_url': 'https://www.facebook.com/".$fb_id1[0]."',
-			             'subtitle':'Haz click para entrar a su perfil'
-			          },
-			          {
-			            'title':'".$first_name1[1]."',          
-			            'image_url':'".$profile_pic1[1]."',
-			            'item_url': 'https://www.facebook.com/".$fb_id1[1]."',
-			             'subtitle':'Haz click para entrar a su perfil'
-			          },
-			          {
-			            'title':'".$first_name1[2]."',          
-			            'image_url':'".$profile_pic1[2]."',
-			            'item_url': 'https://www.facebook.com/".$fb_id1[2]."',
-			             'subtitle':'Haz click para entrar a su perfil'
-			          }
-			          ]
-			        }
-			      }
-			    }
-			 }";
-			 break;
-			 case 4:
-			   $messageData = "{
-			    'recipient': {
-			      'id': $this->rid
-			    },
-			    'message':{
-			      'attachment':{
-			        'type':'template',
-			        'payload':{
-			          'template_type': 'generic',
-			          'elements': [
-			          {
-			            'title':'".$first_name1[0]."',          
-			            'image_url':'".$profile_pic1[0]."',
-			            'item_url': 'https://www.facebook.com/".$fb_id1[0]."',
-			             'subtitle':'Haz click para entrar a su perfil'
-			          },
-			          {
-			            'title':'".$first_name1[1]."',          
-			            'image_url':'".$profile_pic1[1]."',
-			            'item_url': 'https://www.facebook.com/".$fb_id1[1]."',
-			             'subtitle':'Haz click para entrar a su perfil'
-			          },
-			          {
-			            'title':'".$first_name1[2]."',          
-			            'image_url':'".$profile_pic1[2]."',
-			            'item_url': 'https://www.facebook.com/".$fb_id1[2]."',
-			             'subtitle':'Haz click para entrar a su perfil'
-			          },
-			          {
-			            'title':'".$first_name1[3]."',          
-			            'image_url':'".$profile_pic1[3]."',
-			            'item_url': 'https://www.facebook.com/".$fb_id1[3]."',
-			             'subtitle':'Haz click para entrar a su perfil'
-			          }
-			          ]
-			        }
-			      }
-			    }
-			 }";
-			 break;
-			 default:
-			 $messageData = "{
-			    'recipient': {
-			      'id': $this->rid
-			    },
-			    'message':{
-			      'attachment':{
-			        'type':'template',
-			        'payload':{
-			          'template_type': 'generic',
-			          'elements': [
-			          {
-			            'title':'".$first_name1[0]."',          
-			            'image_url':'".$profile_pic1[0]."',
-			            'item_url': 'https://www.facebook.com/".$fb_id1[0]."',
-			             'subtitle':'Haz click para entrar a su perfil'
-			          },
-			          {
-			            'title':'".$first_name1[1]."',          
-			            'image_url':'".$profile_pic1[1]."',
-			            'item_url': 'https://www.facebook.com/".$fb_id1[1]."',
-			             'subtitle':'Haz click para entrar a su perfil'
-			          },
-			          {
-			            'title':'".$first_name1[2]."',          
-			            'image_url':'".$profile_pic1[2]."',
-			            'item_url': 'https://www.facebook.com/".$fb_id1[2]."',
-			             'subtitle':'Haz click para entrar a su perfil'
-			          },
-			          {
-			            'title':'".$first_name1[3]."',          
-			            'image_url':'".$profile_pic1[3]."',
-			            'item_url': 'https://www.facebook.com/".$fb_id1[3]."',
-			             'subtitle':'Haz click para entrar a su perfil'
-			          },
-			          {
-			            'title':'".$first_name1[4]."',          
-			            'image_url':'".$profile_pic1[4]."',
-			            'item_url': 'https://www.facebook.com/".$fb_id1[4]."',
-			             'subtitle':'Haz click para entrar a su perfil'
-			          }
-			          ]
-			        }
-			      }
-			    }
-			 }";
-
-		  }
-
-	 //vamos a mandarle los ´último que ha ganado
-	 $this->callSendApi($messageData);
-	}
-
-	public function sendTyping ()
-	{
-	    $messageData = "{
-	    'recipient':{
-	      'id':$this->rid
-	    },
-	    'sender_action':'typing_on'
-	  }";
-	  $this->callSendApi($messageData);
 	}
 
 	public function callSendApi ($messageDataSend)

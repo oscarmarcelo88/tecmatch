@@ -81,7 +81,7 @@ h4  {
       'app_secret' => '0c360663f24dec79e8428e58cc2069ee',
       'default_graph_version' => 'v2.6',
     ]);
-    $redirect = "".$url_using."/tecmatch/login/prueba.php?id=$rid";
+    $redirect = "".$url_using."/tecmatch/login/prueba2.php";
     # Create the login helper object
     $helper = $fb->getRedirectLoginHelper();
     # Get the access token and catch the exceptions if any
@@ -121,7 +121,8 @@ h4  {
         }
         
     }else{
-        $permissions  = ['email','user_location','user_education_history'];
+             $permissions  = ['email','user_location','user_education_history'];
+
         $loginUrl = $helper->getLoginUrl($redirect, $permissions);
 ?>
         <a href=<?php echo $loginUrl; ?>>

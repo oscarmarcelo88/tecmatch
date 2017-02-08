@@ -14,7 +14,7 @@
   $db_username = "root";
   $db_pass = "root";
 
-  $url_using = "https://08bde3ac.ngrok.io";
+  $url_using = "https://d3fc1717.ngrok.io";
 
 	# Autoload the required files
 	require_once __DIR__ . '/vendor/autoload.php';
@@ -34,13 +34,13 @@
 	  'default_graph_version' => 'v2.6',
 	]);
 
-  $redirect = "https://www.messenger.com/closeWindow/?image_url={https://08bde3ac.ngrok.io/tecmatch/login/cover.png}&display_text={Gracias por registrarte}";
+  $redirect = "https://www.messenger.com/closeWindow/?image_url={https://d3fc1717.ngrok.io/tecmatch/login/cover.png}&display_text={Gracias por registrarte}";
 	# Create the login helper object
 	$helper = $fb->getRedirectLoginHelper();
 
 	$app_id = '585240351666649';
 	$app_secret = '0c360663f24dec79e8428e58cc2069ee';
-	$my_url = "https://55258982.ngrok.io/tecmatch/login/prueba.php?id=$rid";
+	$my_url = "https://d3fc1717.ngrok.io/tecmatch/login/prueba.php?id=$rid";
 	$code = $_GET['code'];
 
   $token_url = "https://graph.facebook.com/oauth/access_token?"
@@ -122,7 +122,7 @@
      $functions->sendTextMessage($replies);*/
     }
 
-  		$url = "https://www.messenger.com/closeWindow/?image_url={https://08bde3ac.ngrok.io/tecmatch/login/cover.png}&display_text={Gracias por registrarte}";
+  		$url = "https://www.messenger.com/closeWindow/?image_url={https://d3fc1717.ngrok.io/tecmatch/login/cover.png}&display_text={Gracias por registrarte}";
   		echo '<META HTTP-EQUIV=REFRESH CONTENT="1; '.$url.'">';
 
 function insertUser ($first_name, $last_name, $profile_pic, $email, $locale, $genderInt, $rid, $fb_id, $education, $location, $channel, $results, $connectiondb, $sexual_orientation)

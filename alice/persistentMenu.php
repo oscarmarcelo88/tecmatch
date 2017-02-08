@@ -4,7 +4,7 @@ $postbody = '{"setting_type":"call_to_actions","thread_state":"existing_thread",
 
 
 $ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, 'https://graph.facebook.com/v2.6/me/thread_settings?access_token=EAAIUReNE8dkBAFikkZBPUzx6NxdLWIJJmtIHCdIT6g37FnvEJLHFNo6YKQNlNFkyr9G1z1qg6B74yNNnYzZAwp4mIO6VpJMsjd6e3Ogd1f4J5X6I2TJuM7d29r1WVCDHkhZAGhyy3kspMfZBLTRUk8ZCepCCCjgvw8w4KSoUaQQZDZD');
+curl_setopt($ch, CURLOPT_URL, 'https://graph.facebook.com/v2.6/me/thread_settings?access_token=EAAQuAw8ZC2rMBAAFJztHWLSBkRgyeCylpCCf8ajZCSfyjE8et83KHfDXZBQwBf3CKnvXv7LBJMDMJp69CfqZBZAbilSQioYmf33DCwbcTzzW10hz4iyXBvKNDEN7xrdQ5pyug3BoLvgoCqipSG2BKRoxoRjSlaZC2aGxDPSQnMpwZDZD');
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, $postbody);
 curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json')); 
