@@ -7,13 +7,17 @@ $challenge = $_REQUEST['hub_challenge'];
         }
 
 //BD real
-/*
+
 $db_host = "tecmatch.co";
 $db_name = "tecmatch_tecmatchdb";
 $db_username = "tecmatch_user";
 $db_pass = "Tecmatch88";
-*/
 
+/*
+$db_host = "localhost";
+$db_name = "test_TecMatch";
+$db_username = "root";
+$db_pass = "root";*/
 
 //echo $_SERVER['DOCUMENT_ROOT'];
 
@@ -21,10 +25,6 @@ require 'Functions.php';
 require 'ConnectionDb.php';
 
 
-$db_host = "localhost";
-$db_name = "test_TecMatch";
-$db_username = "root";
-$db_pass = "root";
 
 $data = json_decode(file_get_contents('php://input'), true);
 $rid = $data['entry'][0]['messaging'][0]['sender']['id'];
@@ -34,7 +34,7 @@ $long = $data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload'
 $payload = $data['entry'][0]['messaging'][0]['postback']['payload'];
 $payloadParaContacto = $data['entry'][0]['messaging'][0]['message']['quick_reply']['payload'];
 
-$urlWebhook = "https://08bde3ac.ngrok.io/tecmatch/";
+$urlWebhook = "https://717d2ec6.ngrok.io/tecmatch/";
 
 $connectiondb = new ConnectionDb();
 
@@ -66,10 +66,11 @@ list ($nickname, $messageToContact) = split (':',$message);
     }
 
 //if they don't have fb_id they need to do login
+    //quite: if (($results2[0]['fb_id'] == null && $message != null) || $payload == "getstarted")
   if (($results2[0]['fb_id'] == null && $message != null) || $payload == "getstarted")
       {
         $functions->sendTyping();
-        $functions->sendLogin();
+        //$functions->sendLogin();
       }
 
   //Persistent menu options:
