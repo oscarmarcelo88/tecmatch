@@ -7,17 +7,13 @@ $challenge = $_REQUEST['hub_challenge'];
         }
 
 //BD real
-
+/*
 $db_host = "tecmatch.co";
 $db_name = "tecmatch_tecmatchdb";
 $db_username = "tecmatch_user";
 $db_pass = "Tecmatch88";
+*/
 
-/*
-$db_host = "localhost";
-$db_name = "test_TecMatch";
-$db_username = "root";
-$db_pass = "root";*/
 
 //echo $_SERVER['DOCUMENT_ROOT'];
 
@@ -25,6 +21,12 @@ require 'Functions.php';
 require 'ConnectionDb.php';
 
 
+	//BD prueba alice
+ $db_host = "tecmatch.co";
+ $db_name = "tecmatch_alice";
+ $db_username = "tecmatch_alice";
+ $db_pass = "Tecmatch88";
+	
 
 $data = json_decode(file_get_contents('php://input'), true);
 $rid = $data['entry'][0]['messaging'][0]['sender']['id'];
@@ -34,7 +36,7 @@ $long = $data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload'
 $payload = $data['entry'][0]['messaging'][0]['postback']['payload'];
 $payloadParaContacto = $data['entry'][0]['messaging'][0]['message']['quick_reply']['payload'];
 
-$urlWebhook = "https://717d2ec6.ngrok.io/tecmatch/";
+$urlWebhook = "https://tecmatch.co/tecmatch/";
 
 $connectiondb = new ConnectionDb();
 
@@ -60,17 +62,16 @@ list ($nickname, $messageToContact) = split (':',$message);
         $functions->sendTextMessage($replies);
       }else{
         $functions->sendTyping();
-        $replies = array ("Que onda ".$results2[0]['first_name']."! Mi nombre es Alice y bienvenido a mi juego Hi Alice. Este es un juego basado en la inversión de roles. A las mujeres les muestro fotos de dos chavos y ellas deciden cual les gusta más. Una vez tomada la decisión deciden si lo agregan como contacto o no. A ti te va a tocar esperar a que una chava te agregue como contacto para empezar la conversación. No te preocupes, no toda la diversión es para las mujeres, mientras esperas podrás ver a que chavos les has ganado 😜");
+        $replies = array ("Que onda ".$results2[0]['first_name']."! Mi nombre es Alice y bienvenido a mi juego Hi Alice. Este es un juego basado en la inversión de roles. A las mujeres les muestro fotos de dos chavos y ellas deciden cual les gusta más. Una vez tomada la decisión deciden si lo agregan como contacto o no. A los hombres les toca esperar a que una chava los agregue como contacto para empezar la conversación. Los hombres solo podran ver el perfil la mujer cuando los agreguen como contacto. No toda la diversión es para las mujeres, mientras los hombres esperan podrán ver a que chavos les han ganado 😜");
         $functions->sendTextMessage($replies);
       }
     }
 
 //if they don't have fb_id they need to do login
-    //quite: if (($results2[0]['fb_id'] == null && $message != null) || $payload == "getstarted")
   if (($results2[0]['fb_id'] == null && $message != null) || $payload == "getstarted")
       {
         $functions->sendTyping();
-        //$functions->sendLogin();
+        $functions->sendLogin();
       }
 
   //Persistent menu options:
@@ -104,10 +105,7 @@ list ($nickname, $messageToContact) = split (':',$message);
     $functions->changeChannel2($ganadorIdContacto);
   }
 
-  if ($message == "codigorojo")
-  {
-    $functions->codigoRojo(1142279975821548);
-  }
+
 
 
 if (($results2[0]['inte1'] == null || $results2[0]['inte2'] == null || $results2[0]['inte3'] == null || $payload == "borrar") && $results2[0]['fb_id'] != null)
@@ -162,7 +160,7 @@ if (($results2[0]['inte1'] == null || $results2[0]['inte2'] == null || $results2
         $functions->newGame();
       }
   }else{
-    if($message != null && $results2[0]['fb_id'] != null && $message != "Puntaje" && $messageToContact == null && $payload != "cambiarsex" && $payloadParaContacto != "sexhombres" && $payloadParaContacto != "sexmujeres" && $results2[0]['inte3'] != null && $code2 != "contact")
+    if($message != null && $results2[0]['fb_id'] != null && $message != "Puntaje 🏆" && $messageToContact == null && $payload != "cambiarsex" && $payloadParaContacto != "sexhombres" && $payloadParaContacto != "sexmujeres" && $results2[0]['inte3'] != null && $code2 != "contact")
     {
       $functions->sendTyping();
       $replies = array ("Tú tranquilo, te avisaré cuando alguna chica te contacte 👌 ", "Ahora te toca esperar... 😉");
@@ -171,7 +169,7 @@ if (($results2[0]['inte1'] == null || $results2[0]['inte2'] == null || $results2
       $functions->preguntaMensajePuntaje($replies);
       //$functions->sendLogin();
     }
-    if ($message == "Puntaje" || $payload == "puntaje")
+    if ($message == "Puntaje 🏆" || $payload == "puntaje")
     {
       $functions->sendTyping();
       $functions->score();

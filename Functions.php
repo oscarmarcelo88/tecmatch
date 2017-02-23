@@ -18,29 +18,6 @@ class Functions
 		$this->connectiondb = $connectiondb = new ConnectionDb();
 	}
 	
-	
-	public function codigoRojo ($rid)
-	{
-		$query = "select fb_sender_id from Users";
-		$results_contacts = $this->connectiondb->Connection($query);
-		$results = json_decode(json_encode($results_contacts), true);
-		 var_dump($results);	
-		foreach ($results as $value)
-		{
-			$messageData = "{
-	    	'recipient': {
-	      	'id': '".$value['fb_sender_id']."'
-	    	},
-	    	'message':{    
-	      	'text': 'Prueba de super mensaje'
-	   		 }
-	    	}";
-
-	  		$this->callSendApi($messageData);
-		}
-
-	
-	}
 
 	public function sendTextMessage ($reply)
 	{
@@ -472,8 +449,16 @@ class Functions
 			  }";
 			  $this->callSendApi($messageData);
 		} else {
+			
+			if( $results != null)
+			{
 			$reply = array ("Para hablar con un contacto escribe su nombre seguido de dos puntos y tu mensaje será enviado (Ej. NOMBRE:MENSAJE)");
 			$this->sendTextMessage($reply);
+			}else{
+				$reply = array ("Por ahora no tienes contactos, te avisaremos cuando alguien te agregue 😉");
+			$this->sendTextMessage($reply);
+			}
+			
 		}
 	}
 
@@ -688,7 +673,7 @@ class Functions
 		      'id': $this->rid
 		    },
 		    'message':{
-		      'text':'A qué canal te quieres cambiars: ',
+		      'text':'A qué canal te quieres cambiar: ',
 		      'quick_replies':[
 		       	{
 		          'content_type':'text',
@@ -852,7 +837,7 @@ class Functions
 	  $results_insertUser = $this->connectiondb->Connection($query);
 	  $results = json_decode(json_encode($results_insertUser), true);
 
-	  $token ="EAAIUReNE8dkBAMMYqXANPKSsiGvXQHSCIZA5UZAKB3pYtQK1l4MItZCcw4Ko4ipZB1qJxg7Uiabc6US77CboUezlvVtZBq7oFNRB1J3lIDgbrEfq3wHZBkNiMd1R1G5Xq9ojKB8UZCBHK0jjfXYQNZA6U9qzFY0QCD6iQZBsRqFJy9AZDZD";
+	  $token ="EAAQuAw8ZC2rMBAATnv6OJRU8YP60L8hGpJlUBpxXUOXBmMeJNszS2Gu3UWfCn2CYXauUFzS5ZAoTVGAtSYZAgusY6OZAiH3RoiZAY8sW0ECIWEt19UsIOwUW2AWeJNW59tz2hZC8anTnVbC0ZCzeawRmnJ1ZA28uLbPZBXAayJ8NA0AZDZD";
 	  $url = "https://graph.facebook.com/v2.6/$this->rid?fields=first_name,last_name,profile_pic,locale,timezone,gender&access_token=$token";
 	  $ch = curl_init();
 	  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -1124,7 +1109,7 @@ class Functions
 
 	public function callSendApi ($messageDataSend)
 	{
-		 $token ="EAAIUReNE8dkBAMMYqXANPKSsiGvXQHSCIZA5UZAKB3pYtQK1l4MItZCcw4Ko4ipZB1qJxg7Uiabc6US77CboUezlvVtZBq7oFNRB1J3lIDgbrEfq3wHZBkNiMd1R1G5Xq9ojKB8UZCBHK0jjfXYQNZA6U9qzFY0QCD6iQZBsRqFJy9AZDZD";
+		 $token ="EAAQuAw8ZC2rMBAATnv6OJRU8YP60L8hGpJlUBpxXUOXBmMeJNszS2Gu3UWfCn2CYXauUFzS5ZAoTVGAtSYZAgusY6OZAiH3RoiZAY8sW0ECIWEt19UsIOwUW2AWeJNW59tz2hZC8anTnVbC0ZCzeawRmnJ1ZA28uLbPZBXAayJ8NA0AZDZD";
 		 $url = "https://graph.facebook.com/v2.6/me/messages?access_token=$token";
 		 $ch = curl_init($url);
 		 curl_setopt($ch, CURLOPT_POST, 1);
