@@ -6,13 +6,12 @@ $challenge = $_REQUEST['hub_challenge'];
             echo $challenge;
         }
 
-//BD real
-/*
-$db_host = "tecmatch.co";
-$db_name = "tecmatch_tecmatchdb";
-$db_username = "tecmatch_user";
-$db_pass = "Tecmatch88";
-*/
+//BD prueba
+
+$db_host = "localhost";
+$db_name = "test_TecMatch";
+$db_username = "root";
+$db_pass = "root";
 
 
 //echo $_SERVER['DOCUMENT_ROOT'];
@@ -21,12 +20,13 @@ require 'Functions.php';
 require 'ConnectionDb.php';
 
 
-	//BD prueba alice
+	//BD  alice
+/*
  $db_host = "tecmatch.co";
  $db_name = "tecmatch_alice";
  $db_username = "tecmatch_alice";
  $db_pass = "Tecmatch88";
-	
+	*/
 
 $data = json_decode(file_get_contents('php://input'), true);
 $rid = $data['entry'][0]['messaging'][0]['sender']['id'];
@@ -36,21 +36,32 @@ $long = $data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload'
 $payload = $data['entry'][0]['messaging'][0]['postback']['payload'];
 $payloadParaContacto = $data['entry'][0]['messaging'][0]['message']['quick_reply']['payload'];
 
-$urlWebhook = "https://tecmatch.co/tecmatch/";
+$urlWebhook = "https://cc29a9d6.ngrok.io/tecmatch/";
 
 $connectiondb = new ConnectionDb();
 
 list ($code, $ganadorId, $perdedorId) = split ('/',$payload);
 list ($code2, $ganadorIdContacto, $perdedorIdContacto) = split ('/',$payloadParaContacto);
-
 list ($nickname, $messageToContact) = split (':',$message);
 
+
 //Para saber si ponemos el login y el getstarted msg
-  $query = 'select fb_id, first_name, gender, sexual_orientation, lives_in, studied_at, location, inte1, inte2, inte3 from Users where fb_sender_id='.$rid;
+  $query = 'select fb_id, first_name, gender, sexual_orientation, lives_in, studied_at, location, inte1, inte2, inte3, created_at from Users where fb_sender_id='.$rid;
   $results = $connectiondb->Connection($query);
   $results2 = json_decode(json_encode($results), true);
 
   $functions = new Functions($rid, $message, $urlWebhook, $results2[0]['sexual_orientation'], $results2[0]['location'], $results2[0]['first_name'], $results2[0]['gender']);
+
+  if ($results2 == null)
+  {
+    $functions->insertUser();
+    $query = 'select fb_id, first_name, gender, sexual_orientation, lives_in, studied_at, location, inte1, inte2, inte3 from Users where fb_sender_id='.$rid;
+    $results = $connectiondb->Connection($query);
+    $results2 = json_decode(json_encode($results), true);
+  }
+
+     //Update the updated_at of Users
+    $functions->updateTime("Users");
 
   //para probarlo: $payload = "getstarted";
     if ($payload == "getstarted")
@@ -58,11 +69,15 @@ list ($nickname, $messageToContact) = split (':',$message);
       if ($results2[0]["gender"] == 1)
       {
         $functions->sendTyping();
-        $replies = array ("Hola ".$results2[0]['first_name']."! Mi nombre es Alice y bienvenida a mi juego Hi Alice. Este es un juego basado en la inversión de roles. Te voy a mostrar dos fotos de chavos y tú decidirás cual te gusta más. Una vez tomada la decisión podrás elegir entre dos opciones, agregarlo a tus contactos o seguir jugando. No te preocupes, solo los hombres que agregues podrán contactarte 👌");
+        $replies = array ("Hola ".$results2[0]['first_name']."! Mi nombre es Alice 🤖 y bienvenida a mi juego. Te voy a mostrar dos fotos de chavos y tú decidirás cuál te gusta más. Una vez tomada la decisión podrás elegir entre, agregarlo a tus contactos o seguir jugando 😏");
         $functions->sendTextMessage($replies);
-      }else{
+        $replies = array ("No te preocupes, solo los hombres que agregues podrán contactarte 👌");
+        $functions->sendTextMessage($replies);
+      }else {
         $functions->sendTyping();
-        $replies = array ("Que onda ".$results2[0]['first_name']."! Mi nombre es Alice y bienvenido a mi juego Hi Alice. Este es un juego basado en la inversión de roles. A las mujeres les muestro fotos de dos chavos y ellas deciden cual les gusta más. Una vez tomada la decisión deciden si lo agregan como contacto o no. A los hombres les toca esperar a que una chava los agregue como contacto para empezar la conversación. Los hombres solo podran ver el perfil la mujer cuando los agreguen como contacto. No toda la diversión es para las mujeres, mientras los hombres esperan podrán ver a que chavos les han ganado 😜");
+        $replies = array ("Hola ".$results2[0]['first_name']."! Mi nombre es Alice 🤖 y bienvenido a mi juego. A las mujeres les muestro fotos de dos chavos y ellas deciden cuál les gusta más. Una vez tomada la decisión deciden si lo agregan como contacto o no. Te toca esperar a que una chava te agregue como contacto para empezar la conversación 👌");
+        $functions->sendTextMessage($replies);
+        $replies = array ("No toda la diversión es para las mujeres, mientras los hombres esperan podrán ver a que chavos les han ganado 😜");
         $functions->sendTextMessage($replies);
       }
     }
@@ -100,12 +115,20 @@ list ($nickname, $messageToContact) = split (':',$message);
   }
   if ($code2 == "channelChange")
   {
-    //is ganadorIdContacto is the new channel
-    $functions->sendTyping();
-    $functions->changeChannel2($ganadorIdContacto);
+    //if they choose a null channel:
+    if ($ganadorIdContacto != null)
+    {
+      //is ganadorIdContacto is the new channel
+      $functions->sendTyping();
+      $functions->changeChannel2($ganadorIdContacto);    
+    } else{
+      $functions->sendTyping();
+      $replies = array ("Esa opción no es valida. Elije otro canal.");
+      $functions->sendTextMessage($replies);
+      $functions->changeChannel($results2[0]['lives_in'], $results2[0]['studied_at']);
+    }
+
   }
-
-
 
 
 if (($results2[0]['inte1'] == null || $results2[0]['inte2'] == null || $results2[0]['inte3'] == null || $payload == "borrar") && $results2[0]['fb_id'] != null)
@@ -114,6 +137,19 @@ if (($results2[0]['inte1'] == null || $results2[0]['inte2'] == null || $results2
     $message = null;
   }
 
+//if the don't have gender register on Facebook
+$flagNoGender = false;
+if ($results2[0]['gender'] == 2)
+{
+  $flagNoGender = true;
+  if ($payloadParaContacto == null && $message != null) //means that I haven't ask them for the gender
+  {
+    $functions->askGender();
+  }else{
+    $functions->assignGender($payloadParaContacto);
+    $flagNoGender = false;
+  }
+}
 
 //gays = 1, lesbianas=2, heter=0, pero lo pongo como 0 para probar
   if (($results2[0]['gender'] == 1 || $results2[0]['sexual_orientation'] == 1 || $results2[0]['sexual_orientation'] == 2) && $results2[0]['fb_id'] != null && $messageToContact == null && $payload != "cambiarsex" && $payloadParaContacto != "sexhombres" && $payloadParaContacto != "sexmujeres" && $results2[0]['inte3'] != null && $code2 != "contact")
@@ -160,7 +196,7 @@ if (($results2[0]['inte1'] == null || $results2[0]['inte2'] == null || $results2
         $functions->newGame();
       }
   }else{
-    if($message != null && $results2[0]['fb_id'] != null && $message != "Puntaje 🏆" && $messageToContact == null && $payload != "cambiarsex" && $payloadParaContacto != "sexhombres" && $payloadParaContacto != "sexmujeres" && $results2[0]['inte3'] != null && $code2 != "contact")
+    if($message != null && $results2[0]['fb_id'] != null && $message != "Puntaje 🏆" && $messageToContact == null && $payload != "cambiarsex" && $payloadParaContacto != "sexhombres" && $payloadParaContacto != "sexmujeres" && $results2[0]['inte3'] != null && $code2 != "contact" && $flagNoGender == false)
     {
       $functions->sendTyping();
       $replies = array ("Tú tranquilo, te avisaré cuando alguna chica te contacte 👌 ", "Ahora te toca esperar... 😉");

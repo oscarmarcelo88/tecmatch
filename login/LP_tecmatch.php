@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
-<head>
+<head><meta http-equiv="Content-Type" content="text/html; charset=gb18030">
 	        <title>Tec Match</title>
-        <meta charset="UTF-8">
+        
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body {background: #FBF1E7;}
@@ -70,7 +70,7 @@ h4  {
     # Start the session 
     session_start();
   
-    $url_using = "https://717d2ec6.ngrok.io";
+    $url_using = "https://cc29a9d6.ngrok.io";
     $rid = $_GET['id'];
 
     # Autoload the required files

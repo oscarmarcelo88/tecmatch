@@ -16,6 +16,9 @@ class Functions
 		$this->first_name = $first_name;
 		$this->gender = $gender;
 		$this->connectiondb = $connectiondb = new ConnectionDb();
+		//$this->token = "EAAIUReNE8dkBAMcdnW5Tgf3Ww6cZCpDzexUp8ZAB7xZB70cj89PtnI6lU6mWX2DG7M6CifA9wRmBhwAOwZBZCHXHlM3f9qQWRAV8XVrbusx8fJGuEeAzwtiWxJgzmcDIXFZAsSVdtWeIH5Np1QZCzd0si94eWfiJHFSpkpWrxHeVgZDZD";
+		//toker hi alice
+		$this->token = "EAAQuAw8ZC2rMBAJpAQgL2HoGOagPnsvSIV2my6bPGkbltv3ollcv4fXgTqBseb6lK1U6uuDj4DTQp6TJZBbY6EOTxP6B4fAZApWQeqzWjEYYfIdv3iL61qcv6BFujoAM7HzZAkm2FQQJFONQnVY09BqKUJMz7VnNZAVtjBh4WVAZDZD";
 	}
 	
 
@@ -50,6 +53,7 @@ class Functions
 
 	public function sendTextMessageToContact ($nickname, $reply)
 	{
+		
 		$query2 = 'select ganadorId, jugadorId, nickname1, nickname2 from Games WHERE (ganadorId ='.$this->rid.' OR jugadorId ='.$this->rid.') AND (nickname1 IS NOT NULL)';
 	  	$results_contact2 = $this->connectiondb->Connection($query2);
 	  	$results2 = json_decode(json_encode($results_contact2), true);
@@ -193,11 +197,11 @@ class Functions
 	{
 	  if ($this->gender == 1)
 	  {
-		  $replies = array("".$this->first_name." Bienvenida al juego. Para apoyarte en tu decisiones contesta las siguientes 3 preguntas.");
+		  $replies = array("Bienvenida al juego ".$this->first_name.". Para apoyarte en tu decisiones contesta las siguientes 3 preguntas.");
 		  $this->sendTextMessage($replies);
 	  } else if ($this->gender == 0)
 	  {
-		  $replies = array("".$this->first_name." Bienvenido al juego. Primero me gustaría saber unas cosas de ti.");
+		  $replies = array("Bienvenido al juego ".$this->first_name.". Primero me gustaría saber unas cosas de ti.");
 		  $this->sendTextMessage($replies);
 	  }
 	  $messageData = "{
@@ -362,6 +366,45 @@ class Functions
 		                }
 	}
 
+	public function askGender ()
+	{
+		$messageData = "{
+	    'recipient':{
+	      'id': $this->rid
+	    },
+	    'message':{
+	      'text':'Necesitamos saber tu género. Esta opción no la podrás cambiar en un futuro así que di la verdad.',
+	      'quick_replies':[
+	       	{
+	          'content_type':'text',
+	          'title':'Hombre 👨',
+	          'payload':'generohombre'
+	        },
+	        {
+	          'content_type':'text',
+	          'title':'Mujer 👩',
+	          'payload':'generomujer'
+	        }
+	      ]
+	    }
+	  }";
+	  $this->callSendApi($messageData);
+	}
+
+	public function assignGender($gendercode)
+	{
+		if ($gendercode == "generomujer")
+		{
+			$gender = 1;
+		} else {$gender = 0;}
+		$pdo = $this->connectiondb->ConnectionReturnPDO();
+		$sql = "UPDATE Users SET $gender = :gender WHERE fb_sender_id = :fb_sender_id";
+		$stmt = $pdo->prepare($sql);                                  
+		$stmt->bindParam(':fb_sender_id', $this->rid, PDO::PARAM_STR);
+		$stmt->bindParam(':gender', $gender, PDO::PARAM_INT);
+		$stmt->execute(); 
+	}
+
 	public function changeInte ($num, $type)
 	{
 		$pdo = $this->connectiondb->ConnectionReturnPDO();
@@ -393,9 +436,10 @@ class Functions
 		{	
 			$pdo = $this->connectiondb->ConnectionReturnPDO();
 			//jugadorId is the fb_sender_id of the player, ganadorid and perdedorid is the fb_id
-			$statement = $pdo->prepare("INSERT INTO Games(ganadorId, perdedorId, jugadorId) 
-	        	VALUES(?,?,?)");
-	    	$statement->execute(array($ganadorId, $perdedorId, $this->rid)); 
+			$statement = $pdo->prepare("INSERT INTO Games(ganadorId, perdedorId, jugadorId, updated_at) 
+	        	VALUES(?,?,?,?)");
+	    	date_default_timezone_set('America/Chicago'); // Set the time in CDT 
+	    	$statement->execute(array($ganadorId, $perdedorId, $this->rid, strtotime("now"))); 
 	    }
 	}
 
@@ -536,10 +580,8 @@ class Functions
 	  $results_contact3 = $this->connectiondb->Connection($query);
 	  $results3 = json_decode(json_encode($results_contact3), true);
 
-	  var_dump($results3);	
 	  foreach ($results3 as $key => $value) 
 	  {
-	  	echo "aganador: ".$value['ganadorId'];
 	  	if($ganadorId == $value['ganadorId'])
 	  	{
 	  		$nickname = $value['nickname1'];
@@ -574,7 +616,7 @@ class Functions
 	 //este if es para que no se loopee, no sé porque lo hace.
 	 if ($first_name1 != null)
 	 {
-	  $replies = array ("Que onda ".$first_name2."! ".$first_name1." te agregó como contacto! Ella ya dio el primer paso te toca a ti! 😏 Para hablar con ella escribe su nombre seguido de dos puntos y tu mensaje será enviado (Ej. ".$nickname.":MENSAJE)","Que onda ".$first_name2."! Te agregó ".$first_name1.". Deberías escribirle 😉 . Para hablar con ella escribe su nombre seguido de dos puntos y tu mensaje será enviado (Ej. ".$nickname.":MENSAJE)", "Oye galán, andas con todo! 8| ".$first_name1." te agregó a sus contactos. Para hablar con ella escribe su nombre seguido de dos puntos y tu mensaje será enviado (Ej. ".$nickname.":MENSAJE)");
+	  $replies = array ("Que onda ".$first_name2."! ".$first_name1." te agregó como contacto! Ella ya dio el primer paso te toca a ti! 😏 Para hablar con ella escribe su nombre seguido de dos puntos y tu mensaje será enviado (Ej. ".$nickname.":MENSAJE)","Que onda ".$first_name2."! Te agregó ".$first_name1.". Deberías escribirle 😉 . Para hablar con ella escribe su nombre seguido de dos puntos y tu mensaje será enviado (Ej. ".$nickname.":MENSAJE)", "Oye galán, andas con todo! ✌ ".$first_name1." te agregó a sus contactos. Para hablar con ella escribe su nombre seguido de dos puntos y tu mensaje será enviado (Ej. ".$nickname.":MENSAJE)");
 	  $this->sendTextMessageContact ($replies, $fb_sender_id_ganador);
 	 }
 	  $this->callSendApi($messageData);
@@ -651,23 +693,27 @@ class Functions
 			$query = "select type, name from Locations where name = '".$value."'";
 	  		$results = $this->connectiondb->Connection($query);
 	  		$results2 = json_decode(json_encode($results), true);
+	  	
 	  		if ($results != null)
 	  		{
 	  			$results2 = json_decode(json_encode($results), true);
 	  			$channel_university = $results2[0]['type'];
 	  		}
 		}
-
-			$query = "select type from Locations where name ='".$location."'";
+			$query = "select type from Locations where name = '$location'";
+			
 	  		$results = $this->connectiondb->Connection($query);
+	  	
 	  		if ($results != null)
 	  		{
+	  			
 	  			$results2 = json_decode(json_encode($results), true);
 	  			$channel_city = $results2[0]['type'];
 	  		}
 			$channel_general = "General";
 
-			//$echo "esdsta es: ".$channel_city;
+			//para prueba
+			
 			$messageData = "{
 		    'recipient':{
 		      'id': $this->rid
@@ -702,6 +748,17 @@ class Functions
 		$sql = "UPDATE Users SET location = :location WHERE fb_sender_id = :fb_sender_id";
 		$stmt = $pdo->prepare($sql);                                  
 		$stmt->bindParam(':location', $channel, PDO::PARAM_STR); 
+		$stmt->bindParam(':fb_sender_id', $this->rid, PDO::PARAM_STR);
+		$stmt->execute(); 
+	}
+
+	public function updateTime ($table)
+	{
+		$pdo = $this->connectiondb->ConnectionReturnPDO();
+		$sql = "UPDATE $table SET updated_at = :updated_at WHERE fb_sender_id = :fb_sender_id";
+		$stmt = $pdo->prepare($sql);   
+		date_default_timezone_set('America/Chicago'); // Set the time in CDT                             
+		$stmt->bindParam(':updated_at', strtotime("now"), PDO::PARAM_INT); 
 		$stmt->bindParam(':fb_sender_id', $this->rid, PDO::PARAM_STR);
 		$stmt->execute(); 
 	}
@@ -837,7 +894,7 @@ class Functions
 	  $results_insertUser = $this->connectiondb->Connection($query);
 	  $results = json_decode(json_encode($results_insertUser), true);
 
-	  $token ="EAAQuAw8ZC2rMBAATnv6OJRU8YP60L8hGpJlUBpxXUOXBmMeJNszS2Gu3UWfCn2CYXauUFzS5ZAoTVGAtSYZAgusY6OZAiH3RoiZAY8sW0ECIWEt19UsIOwUW2AWeJNW59tz2hZC8anTnVbC0ZCzeawRmnJ1ZA28uLbPZBXAayJ8NA0AZDZD";
+	  $token = $this->token;
 	  $url = "https://graph.facebook.com/v2.6/$this->rid?fields=first_name,last_name,profile_pic,locale,timezone,gender&access_token=$token";
 	  $ch = curl_init();
 	  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -847,7 +904,6 @@ class Functions
 	  curl_close($ch);		
 
 	  $infoUser2 = json_decode($infoUser, true); 
-	  var_dump($infoUser2);
 	  $first_name = $infoUser2['first_name'];
 	  $last_name = $infoUser2['last_name'];
 	  $profile_pic = $infoUser2['profile_pic'];
@@ -1109,7 +1165,7 @@ class Functions
 
 	public function callSendApi ($messageDataSend)
 	{
-		 $token ="EAAQuAw8ZC2rMBAATnv6OJRU8YP60L8hGpJlUBpxXUOXBmMeJNszS2Gu3UWfCn2CYXauUFzS5ZAoTVGAtSYZAgusY6OZAiH3RoiZAY8sW0ECIWEt19UsIOwUW2AWeJNW59tz2hZC8anTnVbC0ZCzeawRmnJ1ZA28uLbPZBXAayJ8NA0AZDZD";
+		 $token = $this->token;
 		 $url = "https://graph.facebook.com/v2.6/me/messages?access_token=$token";
 		 $ch = curl_init($url);
 		 curl_setopt($ch, CURLOPT_POST, 1);
