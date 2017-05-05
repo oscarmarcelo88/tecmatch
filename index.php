@@ -6,27 +6,16 @@ $challenge = $_REQUEST['hub_challenge'];
             echo $challenge;
         }
 
-//BD prueba
+require 'config.php';
 
-$db_host = "localhost";
-$db_name = "test_TecMatch";
-$db_username = "root";
-$db_pass = "root";
+$db_host = getenv("db_host");
+$db_name = getenv("db_name");
+$db_username = getenv("db_username");
+$db_pass = getenv("db_pass");
+$token = getenv("token");
 
-
-//echo $_SERVER['DOCUMENT_ROOT'];
-
-require 'Functions.php';
-require 'ConnectionDb.php';
-
-
-	//BD  alice
-/*
- $db_host = "tecmatch.co";
- $db_name = "tecmatch_alice";
- $db_username = "tecmatch_alice";
- $db_pass = "Tecmatch88";
-	*/
+require 'files/Functions.php';
+require 'files/ConnectionDb.php';
 
 $data = json_decode(file_get_contents('php://input'), true);
 $rid = $data['entry'][0]['messaging'][0]['sender']['id'];
@@ -36,7 +25,7 @@ $long = $data['entry'][0]['messaging'][0]['message']['attachments'][0]['payload'
 $payload = $data['entry'][0]['messaging'][0]['postback']['payload'];
 $payloadParaContacto = $data['entry'][0]['messaging'][0]['message']['quick_reply']['payload'];
 
-$urlWebhook = "https://cc29a9d6.ngrok.io/tecmatch/";
+$urlWebhook = getenv("urlWebhook");
 
 $connectiondb = new ConnectionDb();
 
@@ -46,11 +35,15 @@ list ($nickname, $messageToContact) = split (':',$message);
 
 
 //Para saber si ponemos el login y el getstarted msg
-  $query = 'select fb_id, first_name, gender, sexual_orientation, lives_in, studied_at, location, inte1, inte2, inte3, created_at from Users where fb_sender_id='.$rid;
+  $query = 'select fb_id, first_name, gender, block, sexual_orientation, lives_in, studied_at, location, inte1, inte2, inte3, created_at from Users where fb_sender_id='.$rid;
   $results = $connectiondb->Connection($query);
   $results2 = json_decode(json_encode($results), true);
 
-  $functions = new Functions($rid, $message, $urlWebhook, $results2[0]['sexual_orientation'], $results2[0]['location'], $results2[0]['first_name'], $results2[0]['gender']);
+  $functions = new Functions($rid, $message, $urlWebhook, $results2[0]['sexual_orientation'], $results2[0]['location'], $results2[0]['first_name'], $results2[0]['gender'], $token);
+
+  //unblock it if it's block, because they receive a message delivery
+  $functions->checkBlockUser($results2[0]['block']);
+
 
   if ($results2 == null)
   {
@@ -95,6 +88,8 @@ list ($nickname, $messageToContact) = split (':',$message);
   {
     $functions->sendTyping();
     $functions->eraseInte();
+    //we set the inte1 to null so the code knows that we already erase the other inte1.
+    $results2[0]['inte1'] = null;
     $message = "borrar";
   }
   if ($payload == "canal")
@@ -141,7 +136,7 @@ if (($results2[0]['inte1'] == null || $results2[0]['inte2'] == null || $results2
 $flagNoGender = false;
 if ($results2[0]['gender'] == 2)
 {
-  $flagNoGender = true;
+	$flagNoGender = true;
   if ($payloadParaContacto == null && $message != null) //means that I haven't ask them for the gender
   {
     $functions->askGender();
@@ -203,7 +198,7 @@ if ($results2[0]['gender'] == 2)
       $functions->sendTextMessage($replies);
       $replies = array ("Puedes revisar como vas aquí: ");
       $functions->preguntaMensajePuntaje($replies);
-      //$functions->sendLogin();
+      $functions->sendLogin();
     }
     if ($message == "Puntaje 🏆" || $payload == "puntaje")
     {

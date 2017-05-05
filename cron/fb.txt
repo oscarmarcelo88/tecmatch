@@ -1,1 +1,1 @@
-/Applications/MAMP/htdocs/tecmatch/cron/test_cron.php
+/home2/tecmatch/public_html/tecmatch/cron/test_cron.php

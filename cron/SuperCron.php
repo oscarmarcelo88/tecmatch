@@ -240,7 +240,8 @@ require '../ConnectionDb.php';
 			  	$results2 = json_decode(json_encode($results), true);
 
 			  	foreach ($results2 as $key => $value) {
-			  		date_default_timezone_set('America/Chicago'); // Set the time in CDT                             						$timeNow = strtotime("now");
+			  		date_default_timezone_set('America/Chicago'); // Set the time in CDT                             						
+			  		$timeNow = strtotime("now");
 					if (($timeNow - 172800) < $value["updated_at"])
 						{
 							$newScores = true;

@@ -1,6 +1,11 @@
 	<?php
 
+/*var_dump(__FILE__);
 
+$myfile = fopen("fb.txt", "w") or die("Unable to open file!");
+$txt = __FILE__;
+fwrite($myfile, $txt);
+fclose($myfile);*/
 
 			$messageDataSend = "{
 	    	'recipient': {
@@ -12,7 +17,7 @@
 	    	}";
 
 	  	
-	  	$token = "EAAIUReNE8dkBAMcdnW5Tgf3Ww6cZCpDzexUp8ZAB7xZB70cj89PtnI6lU6mWX2DG7M6CifA9wRmBhwAOwZBZCHXHlM3f9qQWRAV8XVrbusx8fJGuEeAzwtiWxJgzmcDIXFZAsSVdtWeIH5Np1QZCzd0si94eWfiJHFSpkpWrxHeVgZDZD";
+	  	$token = "EAAIUReNE8dkBAIGcJ8YN1JVT2tr4ojW6Yf2i8MWU1LST3ZBlmLerf7VVR8h0zzHGNyi8ycVZC4xkjBcEzkqBLvP8uvxvhQHhEZBemUfePKxPGvv29lQ5PNWemkxZCFdcl1l5A3r3WvbEvm6q2UFoSgi2ZBkHwN54itk7tZBAhZAnAZDZD";
 		 $url = "https://graph.facebook.com/v2.6/me/messages?access_token=$token";
 		 $ch = curl_init($url);
 		 curl_setopt($ch, CURLOPT_POST, 1);
