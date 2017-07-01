@@ -16,6 +16,7 @@ $token = getenv("token");
 
 require 'files/Functions.php';
 require 'files/ConnectionDb.php';
+include_once 'files/langEN.php';
 
 $data = json_decode(file_get_contents('php://input'), true);
 $rid = $data['entry'][0]['messaging'][0]['sender']['id'];
@@ -62,15 +63,15 @@ list ($nickname, $messageToContact) = split (':',$message);
       if ($results2[0]["gender"] == 1)
       {
         $functions->sendTyping();
-        $replies = array ("Hola ".$results2[0]['first_name']."! Mi nombre es Alice 🤖 y bienvenida a mi juego. Te voy a mostrar dos fotos de chavos y tú decidirás cuál te gusta más. Una vez tomada la decisión podrás elegir entre, agregarlo a tus contactos o seguir jugando 😏");
+        $replies = array ($lang['WELCOME_WOMEN_1_1/2'].$results2[0]['first_name'].$lang['WELCOME_WOMEN_1_2/2']);
         $functions->sendTextMessage($replies);
-        $replies = array ("No te preocupes, solo los hombres que agregues podrán contactarte 👌");
+        $replies = array ($lang['WELCOME_WOMEN_2']);
         $functions->sendTextMessage($replies);
       }else {
         $functions->sendTyping();
-        $replies = array ("Hola ".$results2[0]['first_name']."! Mi nombre es Alice 🤖 y bienvenido a mi juego. A las mujeres les muestro fotos de dos chavos y ellas deciden cuál les gusta más. Una vez tomada la decisión deciden si lo agregan como contacto o no. Te toca esperar a que una chava te agregue como contacto para empezar la conversación 👌");
+        $replies = array ($lang['WELCOME_MALE_1_1/2'].$results2[0]['first_name'].$lang['WELCOME_MALE_1_2/2']);
         $functions->sendTextMessage($replies);
-        $replies = array ("No toda la diversión es para las mujeres, mientras los hombres esperan podrán ver a que chavos les han ganado 😜");
+        $replies = array ($lang['WELCOME_MALE_2']);
         $functions->sendTextMessage($replies);
       }
     }
@@ -79,7 +80,7 @@ list ($nickname, $messageToContact) = split (':',$message);
   if (($results2[0]['fb_id'] == null && $message != null) || $payload == "getstarted")
       {
         $functions->sendTyping();
-        $functions->sendLogin();
+        $functions->sendLogin($lang['LOGIN_DESCRIPTION'], $lang['LOGIN_OPTION']);
       }
 
   //Persistent menu options:
@@ -95,18 +96,18 @@ list ($nickname, $messageToContact) = split (':',$message);
   if ($payload == "canal")
   {
     $functions->sendTyping();
-    $functions->changeChannel($results2[0]['lives_in'], $results2[0]['studied_at']);
+    $functions->changeChannel($results2[0]['lives_in'], $results2[0]['studied_at'], $lang['CHANGE_CHANNEL']);
   }
   if ($payload == "contactos")
   {
     $functions->sendTyping();
-    $functions->showContacts(0);
+    $functions->showContacts(0, $lang['CONTACTS']);
   }
   
   if ($code2 == "contact")
   {
     $functions->sendTyping();
-    $functions->showContacts($ganadorIdContacto);
+    $functions->showContacts($ganadorIdContacto, $lang['CONTACTS']);
   }
   if ($code2 == "channelChange")
   {
@@ -118,9 +119,9 @@ list ($nickname, $messageToContact) = split (':',$message);
       $functions->changeChannel2($ganadorIdContacto);    
     } else{
       $functions->sendTyping();
-      $replies = array ("Esa opción no es valida. Elije otro canal.");
+      $replies = array ($lang['NOCHANNEL_AVAILABLE']);
       $functions->sendTextMessage($replies);
-      $functions->changeChannel($results2[0]['lives_in'], $results2[0]['studied_at']);
+      $functions->changeChannel($results2[0]['lives_in'], $results2[0]['studied_at'], $lang['CHANGE_CHANNEL']);
     }
 
   }
@@ -128,7 +129,7 @@ list ($nickname, $messageToContact) = split (':',$message);
 
 if (($results2[0]['inte1'] == null || $results2[0]['inte2'] == null || $results2[0]['inte3'] == null || $payload == "borrar") && $results2[0]['fb_id'] != null)
   {
-    $functions->questionsAssign($code2, $results2[0]['inte1'], $results2[0]['inte2'], $results2[0]['inte3'], $message, $ganadorIdContacto);
+    $functions->questionsAssign($code2, $results2[0]['inte1'], $results2[0]['inte2'], $results2[0]['inte3'], $message, $ganadorIdContacto, $lang['QUESTIONARIE1'], $lang['QUESTIONARIE2'], $lang['QUESTIONARIE3'], $lang['QUESITON_ASSIGN']);
     $message = null;
   }
 
@@ -139,7 +140,7 @@ if ($results2[0]['gender'] == 2)
 	$flagNoGender = true;
   if ($payloadParaContacto == null && $message != null) //means that I haven't ask them for the gender
   {
-    $functions->askGender();
+    $functions->askGender($lang['ASKGENDER']);
   }else{
     $functions->assignGender($payloadParaContacto);
     $flagNoGender = false;
@@ -150,60 +151,61 @@ if ($results2[0]['gender'] == 2)
   if (($results2[0]['gender'] == 1 || $results2[0]['sexual_orientation'] == 1 || $results2[0]['sexual_orientation'] == 2) && $results2[0]['fb_id'] != null && $messageToContact == null && $payload != "cambiarsex" && $payloadParaContacto != "sexhombres" && $payloadParaContacto != "sexmujeres" && $results2[0]['inte3'] != null && $code2 != "contact")
   {
       //universal response whenever isn't another key message
-      if ($message != null && $message != "Seguir Jugando" && $message != "Jugar" && $message != "Agregar a contactos" && $message != "Empezar" && $message != "Get Started ") 
+      if ($message != null && $message != $lang['OPTION1'] && $message != $lang['OPTION2'] && $message != $lang['OPTION3'] && $message != $lang['OPTION4'] && $message != $lang['OPTION5']) 
       {
         $functions->sendTyping();
-        $replies = array ("Que onda ".$results2[0]["first_name"].", ya podemos comenzar 🎉", "".$results2[0]["first_name"].", que te parece si empezamos ;)", "Estás lista?? 😉");
-        $functions->preguntaMensaje($replies);
-        //$functions->sendLogin();
+        $replies = array ($lang['LETS_START'][0].$results2[0]["first_name"].$lang['LETS_START'][1], "".$results2[0]["first_name"].$lang['LETS_START'][2], $lang['LETS_START'][3]);
+        $functions->preguntaMensaje($replies, $lang['OPTION2']);
+        //$functions->sendLogin($lang['LOGIN_DESCRIPTION'], $lang['LOGIN_OPTION']);
+
       } 
       //choose the winner and we ask what to do
       if ($code == "gano") 
       {
         $functions->sendTyping();
-        $replies = array ("¡Buena elección! Qué quieres hacer:", "Ese era mi preferido! Ahora qué hacemos:", "¡Tienes buenos gustos! Lo agregamos a tus contactos?");
-        $functions->askContact($replies, $ganadorId, $perdedorId);
+        $functions->askContact($lang['WINNER_MSG'], $ganadorId, $perdedorId, $lang['ASK_PLAY_ADD']);
         $functions->saveGame($ganadorId, $perdedorId);
       }
       //send the 2 photos with a winner choosen before
-      if ($message == "Seguir Jugando")
+      if ($message == $lang['OPTION1'])
       {
         $functions->sendTyping();
-        $functions->newGame();
+        $functions->newGame($lang['NEWGAME'], $lang['NEWGAME_bio']);
       }
       //play a new game
-      if ($message == "Jugar" || $payload == "jugar")
+      if ($payloadParaContacto == "Jugar")
       {
         $functions->sendTyping();
-        $functions->newGame();
+        $functions->newGame($lang['NEWGAME'], $lang['NEWGAME_bio']);
       }
       //Contact the user 
-      if ($message == "Agregar a contactos") 
+      if ($message == $lang['OPTION3']) 
       {
         $functions->sendTyping();
         $functions->changeRelationship($ganadorIdContacto, $perdedorIdContacto);
-        $functions->contact($ganadorIdContacto); 
+        $functions->contact($ganadorIdContacto, $lang['CONTACT_USER']); 
         $query = "select nickname2 from Games WHERE ganadorId =".$ganadorIdContacto." AND jugadorId =".$rid."";
         $results_contacto = $connectiondb->Connection($query);
         $results_contacto2 = json_decode(json_encode($results_contacto), true);
-        $replies = array ("Ya lo agregué a tus contactos! Para hablar con el escribe su nombre seguido de dos puntos y tu mensaje será enviado (Ej. ".$results_contacto2[0]['nickname2'].":MENSAJE)");
+        $replies = array ($lang['ADDCONTACT_1/2'].$results_contacto2[0]['nickname2'].$lang['ADDCONTACT_2/2']);
         $functions->sendTextMessage($replies);
-        $functions->newGame();
+        $functions->newGame($lang['NEWGAME'], $lang['NEWGAME_bio']);
       }
   }else{
-    if($message != null && $results2[0]['fb_id'] != null && $message != "Puntaje 🏆" && $messageToContact == null && $payload != "cambiarsex" && $payloadParaContacto != "sexhombres" && $payloadParaContacto != "sexmujeres" && $results2[0]['inte3'] != null && $code2 != "contact" && $flagNoGender == false)
+    if($message != null && $results2[0]['fb_id'] != null && $payloadParaContacto != "puntaje" && $messageToContact == null && $payload != "cambiarsex" && $payloadParaContacto != "sexhombres" && $payloadParaContacto != "sexmujeres" && $results2[0]['inte3'] != null && $code2 != "contact" && $flagNoGender == false)
     {
       $functions->sendTyping();
-      $replies = array ("Tú tranquilo, te avisaré cuando alguna chica te contacte 👌 ", "Ahora te toca esperar... 😉");
-      $functions->sendTextMessage($replies);
-      $replies = array ("Puedes revisar como vas aquí: ");
-      $functions->preguntaMensajePuntaje($replies);
-      $functions->sendLogin();
+      $functions->sendTextMessage($lang['WAITING_MSG']);
+      $functions->preguntaMensajePuntaje($lang['CHECK_SCORE'], $lang['OPTION6']);
+      //TESTING:
+      //$functions->sendLogin($lang['LOGIN_DESCRIPTION'], $lang['LOGIN_OPTION']);
+
+   
     }
-    if ($message == "Puntaje 🏆" || $payload == "puntaje")
+    if ($payloadParaContacto == "puntaje")
     {
       $functions->sendTyping();
-      $functions->score();
+      $functions->score($lang['SCORE']);
      
     }
   }
@@ -211,7 +213,7 @@ if ($results2[0]['gender'] == 2)
   if ($payload == "cambiarsex")
   {
       $functions->sendTyping();
-      $functions->preguntaOrientacionSexual();
+      $functions->preguntaOrientacionSexual($lang['ASKGENDER']);
   }
 
   if ($payloadParaContacto == "sexhombres" || $payloadParaContacto == "sexmujeres")
@@ -219,49 +221,44 @@ if ($results2[0]['gender'] == 2)
       if($results2[0]["gender"] == 0 && $payloadParaContacto == "sexhombres")
         {
           $functions->sendTyping();
-          $replies = array ("Ahora las reglas cambian 😱 Vas a poder ver a hombres que también le interesan hombres y ellos también te van a poder ver a ti.");
-          $functions->sendTextMessage($replies); 
+          $functions->sendTextMessage($lang['CHANGESEX_GAY_MALE']); 
           $functions->changeSexualOrientationDb(1);
-          $replies = array ("Que onda ".$results2[0]["first_name"].", ya podemos comenzar 🎉", "".$results2[0]["first_name"].", que te parece si empezamos ;)", "Estás lista?? 😉");
-          $functions->preguntaMensaje($replies);
+          $replies = array ($lang['LETS_START'][0].$results2[0]["first_name"].$lang['LETS_START'][1], "".$results2[0]["first_name"].$lang['LETS_START'][2], $lang['LETS_START'][3]);
+          $functions->preguntaMensaje($replies,$lang['OPTION2']);
           
         }
         if($results2[0]["gender"] == 0 && $payloadParaContacto == "sexmujeres")
         {
           $functions->sendTyping();
-          $replies = array ("Tú tranquilo, te avisaré cuando alguna chica te contacte 👌 ", "Ahora te toca esperar... 😉 ");          
-          $functions->sendTextMessage($replies); 
+          $functions->sendTextMessage($lang['CHANGESEX_HETERO_MALE']); 
           $functions->changeSexualOrientationDb(0);
         }
         if($results2[0]["gender"] == 1 && $payloadParaContacto == "sexmujeres")
         {
           $functions->sendTyping();
-          $replies = array ("Ahora las reglas cambian 😱 Vas a poder ver a mujeres que también le interesan mujeres y ellas también te van a poder ver a ti.");
-          $functions->sendTextMessage($replies); 
+          $functions->sendTextMessage($lang['CHANGESEX_GAY_FEMALE']); 
           $functions->changeSexualOrientationDb(2);
-          $replies = array ("Que onda ".$results2[0]["first_name"].", ya podemos comenzar 🎉", "".$results2[0]["first_name"].", que te parece si empezamos ;)", "Estás lista?? 😉");
-          $functions->preguntaMensaje($replies);
+          $replies = array ($lang['LETS_START'][0].$results2[0]["first_name"].$lang['LETS_START'][1], "".$results2[0]["first_name"].$lang['LETS_START'][2], $lang['LETS_START'][3]);
+          $functions->preguntaMensaje($replies,$lang['OPTION2']);
         }
         if($results2[0]["gender"] == 1 && $payloadParaContacto == "sexhombres")
         {
           $functions->sendTyping();
-          $replies = array ("Ahora nadie podrá ver tus fotos y veras a hombres que les interesan las mujeres 😏");
-          $functions->sendTextMessage($replies); 
+          $functions->sendTextMessage($lang['CHANGESEX_HETERO_FEMALE']); 
           $functions->changeSexualOrientationDb(0);
-          $replies = array ("Que onda ".$results2[0]["first_name"].", ya podemos comenzar 🎉", "".$results2[0]["first_name"].", que te parece si empezamos ;)", "Estás lista?? 😉");
-          $functions->preguntaMensaje($replies);
+          $replies = array ($lang['LETS_START'][0].$results2[0]["first_name"].$lang['LETS_START'][1], "".$results2[0]["first_name"].$lang['LETS_START'][2], $lang['LETS_START'][3]);
+          $functions->preguntaMensaje($replies,$lang['OPTION2']);
         }
   }
 
   //send message to contact
   if ($messageToContact != null)
   {
-    $functions->sendTextMessageToContact($nickname, $messageToContact);
+    $functions->sendTextMessageToContact($nickname, $messageToContact, $lang['NOCONTACTS'], $lang['CHAT_WROTE'], $lang['CHAT_REPLY'], $lang['TEXT_CONFIRMBLOCK']);
   }
 
   if (strpos($message, 'puto') || strpos($message, 'pendeja') || strpos($message, 'puta') || strpos($message, 'pinche') || strpos($message, 'cabron') || strpos($message, 'pendejo') || strpos($message, 'culo') || strpos($message, 'mames'))
   {
    $functions->sendTyping();
-   $replies = array ("Cuidado con esa boquita", "Con esa boca saludas a tu mamá?");
-   $functions->sendTextMessage($replies);
+   $functions->sendTextMessage($lang['BADWORDS']);
   }
