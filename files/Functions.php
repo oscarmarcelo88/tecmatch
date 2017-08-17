@@ -57,7 +57,7 @@ class Functions
 	  	$results_contact2 = $this->connectiondb->Connection($query2);
 	  	$results2 = json_decode(json_encode($results_contact2), true);
 	  	$recipientId = null;
-	  	
+	  	var_dump($results2);
 	  	foreach ($results2 as $value)
 	  	{
 	  		if ($value['jugadorId'] == $this->rid && $value['nickname2'] == $nickname)
@@ -76,7 +76,7 @@ class Functions
 	  	if ($recipientId == null)
 	  	{
 	  		$recipientId = $this->rid;
-	  		$this->sendTextMessage($text_NoContacts);
+	  		$this->sendTextMessageNewUser($text_NoContacts, $recipientId);
 	  	}else{
 		  	$replies = array ($nickname_sender.$text_ChatWrote.$reply);
 		  	$this->sendTextMessageNewUser($replies, $recipientId);
@@ -86,13 +86,10 @@ class Functions
 		  	//change the block to 2, which means "sending", once we received the delivery it will change to 1. If it still in 2 after 10 sec, they block the bot.
 		  	$this->blockAndUnblockUser($recipientId, 2);
 
-		  	sleep (5);
+		  	sleep (10);
 		  	//if it's block we send a message saying that the user is not available
 		  	$this->confirmBlock($recipientId, $nickname_receiver, $text_ConfirmBlock);
-
-
 	  	}
-
 	}
 
 	public function confirmBlock($userId, $nickname_receiver, $text_ConfirmBlock)
@@ -105,7 +102,6 @@ class Functions
 			$replies = array ($nickname_receiver.$text_ConfirmBlock);
 			$this->sendTextMessage($replies);
 		}
-
 	}
 
 	public function blockAndUnblockUser($userId, $num)
@@ -120,8 +116,10 @@ class Functions
 
 	public function checkBlockUser($num)
 	{
-		if ($num == null or $num == 2)
+		echo "es el id ".$this->rid." y ".$num;
+	    if ($num == null or $num == 2)
 		{
+            echo "adenntro: es el id ".$this->rid." y ".$num;
 			$this->blockAndUnblockUser($this->rid, 1);
 		}
 	}
@@ -589,7 +587,7 @@ class Functions
 	        {
 	          'content_type':'text',
 	          'title':'".$text_askPlayAdd[0]."',
-	          'payload':'contacto/".$ganadorId."/".$perdedorId."'
+	          'payload':'addcontact/".$ganadorId."/".$perdedorId."'
 	        },
 	        {
 	          'content_type':'text',
@@ -617,14 +615,12 @@ class Functions
 	  $results_contact2 = $this->connectiondb->Connection($query);
 	  $results2 = json_decode(json_encode($results_contact2), true);
 
-	  $query = 'select nickname1, nickname2, ganadorId, jugadorId from Games where ganadorId ='.$this->rid.' OR jugadorId ='.$this->rid.'';
+	  $query = 'select nickname1, nickname2, ganadorId, jugadorId from Games where ganadorId ='.$this->rid.' OR jugadorId ='.$this->rid;
 	  $results_contact3 = $this->connectiondb->Connection($query);
 	  $results3 = json_decode(json_encode($results_contact3), true);
 
-	  var_dump($results3);	
-	  foreach ($results3 as $key => $value) 
+	  foreach ($results3 as $key => $value)
 	  {
-	  	echo "aganador: ".$value['ganadorId'];
 	  	if($ganadorId == $value['ganadorId'])
 	  	{
 	  		$nickname = $value['nickname1'];
@@ -659,7 +655,6 @@ class Functions
 	 //este if es para que no se loopee, no sé porque lo hace.
 	 if ($first_name1 != null)
 	 {
-	  //TEXTO: $replies = array ("Que onda ".$first_name2."! ".$first_name1." te agregó como contacto! Ella ya dio el primer paso te toca a ti! 😏 Para hablar con ella escribe su nombre seguido de dos puntos y tu mensaje será enviado (Ej. ".$nickname.":MENSAJE)","Que onda ".$first_name2."! Te agregó ".$first_name1.". Deberías escribirle 😉 . Para hablar con ella escribe su nombre seguido de dos puntos y tu mensaje será enviado (Ej. ".$nickname.":MENSAJE)", "Oye galán, andas con todo! ✌ ".$first_name1." te agregó a sus contactos. Para hablar con ella escribe su nombre seguido de dos puntos y tu mensaje será enviado (Ej. ".$nickname.":MENSAJE)");
 	  $replies = array ($text_contact[0].$first_name2.$text_contact[1].$first_name1.$text_contact[2].$nickname.$text_contact[3],$text_contact[4].$first_name2.$text_contact[5].$first_name1.$text_contact[6].$nickname.$text_contact[7], $text_contact[8].$first_name1.$text_contact[9].$nickname.$text_contact[10]);
 	  $this->sendTextMessageContact ($replies, $fb_sender_id_ganador);
 	 }
@@ -775,6 +770,7 @@ class Functions
 		      ]
 		    }
 		  }";
+			var_dump($messageData);
 		  $this->callSendApi($messageData);
 	}
 
@@ -834,13 +830,14 @@ class Functions
 	{	 
 		if($this->sexual_orientation >= 1)
 		{
-			$query = "select fb_id, first_name, fb_sender_id, profile_pic, inte1, inte2, inte3 from Users where fb_id IS NOT NULL AND sexual_orientation = '".$this->sexual_orientation."' AND location = '".$this->channelUser."' AND block != 2";
+			$query = "select fb_id, first_name, fb_sender_id, profile_pic, inte1, inte2, inte3 from Users where fb_id IS NOT NULL AND sexual_orientation = '".$this->sexual_orientation."' AND location = '".$this->channelUser."' AND (block IS null OR block = 1)";
 		} else {
-			$query = "select fb_id, first_name, fb_sender_id, profile_pic, inte1, inte2, inte3 from Users where fb_id IS NOT NULL AND gender = 0 AND sexual_orientation = '".$this->sexual_orientation."' AND location = '".$this->channelUser."' AND block != 2";
+			$query = "select fb_id, first_name, fb_sender_id, profile_pic, inte1, inte2, inte3 from Users where fb_id IS NOT NULL AND gender = 0 AND sexual_orientation = '".$this->sexual_orientation."' AND location = '".$this->channelUser."' AND (block IS null OR block = 1)";
 		}	
 		  $results_newGame = $this->connectiondb->Connection($query);
 		  $results = json_decode(json_encode($results_newGame), true);
-		  
+
+
 		  $numcount = count ($results);
 
 		 if (count($results) > 2) //So there are at least 3 ppl in channel 2 ppl and the user.
@@ -905,8 +902,8 @@ class Functions
 			 	$replies = array($text_newGame[2], $text_newGame[3], $text_newGame[4], $text_newGame[5], $text_newGame[6], $text_newGame[7]);
 		        $this->sendTextMessage($replies);
 
-		        $this->displayBio($results[$num1]['inte1'], $results[$num1]['inte2'], $results[$num1]['inte3'], $results[$num1]['first_name'], $text_bio);
-		        $this->displayBio($results[$num2]['inte1'], $results[$num2]['inte2'], $results[$num2]['inte3'], $results[$num2]['first_name'], $text_bio);
+		        $this->displayBio((int)$results[$num1]['inte1'], (int)$results[$num1]['inte2'], (int)$results[$num1]['inte3'], $results[$num1]['first_name'], $text_bio);
+		        $this->displayBio((int)$results[$num2]['inte1'], (int)$results[$num2]['inte2'], (int)$results[$num2]['inte3'], $results[$num2]['first_name'], $text_bio);
 
 			 	$this->callSendApi($messageData);
 			}else{
@@ -917,11 +914,12 @@ class Functions
 
 	public function displayBio ($inte1, $inte2, $inte3, $firstnameUser, $text_bio)
 	{
-		$inte1_arr = array ($text_bio[0], $text_bio[1], $text_bio[2], $text_bio[3]);
+	    $inte1_arr = array ($text_bio[0], $text_bio[1], $text_bio[2], $text_bio[3]);
 		$inte2_arr = array ($text_bio[4], $text_bio[5], $text_bio[6], $text_bio[7], $text_bio[8], $text_bio[9]);
 		$inte3_arr = array ($text_bio[10], $text_bio[11]);
-		$replies = array ($firstnameUser.$text_bio[12].$inte1_arr[($inte1-1)].$text_bio[13].$inte2_arr[($inte2-1)].$text_bio[14].$inte3_arr[($inte3-1)]);
-	    $this->sendTextMessage($replies);
+		//send the whole text with interest together
+        $replies = array($firstnameUser . $text_bio[12] . $inte1_arr[($inte1-1)] . $text_bio[13] . $inte2_arr[($inte2-1)] . $text_bio[14] . $inte3_arr[($inte3 -1)]);
+        $this->sendTextMessage($replies);
 	}
 
 //aquí me quede en la traducción y también probar
@@ -1184,7 +1182,6 @@ class Functions
 			      }
 			    }
 			 }";
-
 		  }
 
 	 //vamos a mandarle los ´último que ha ganado
@@ -1204,7 +1201,9 @@ class Functions
 
 	public function callSendApi ($messageDataSend)
 	{
-		 $token = $this->token;
+		echo "aqui ando";
+		var_dump($this->token);
+	    $token = $this->token;
 		 $url = "https://graph.facebook.com/v2.6/me/messages?access_token=$token";
 		 $ch = curl_init($url);
 		 curl_setopt($ch, CURLOPT_POST, 1);

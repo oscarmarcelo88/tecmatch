@@ -45,9 +45,16 @@ $lang['QUESITON_ASSIGN'] = array ("Para estar claros, es Netflix sin chill... �
 $lang['ASKGENDER'] = array ("Te interesan: ","Necesitamos saber tu género. Esta opción no la podrás cambiar en un futuro así que di la verdad.", "Hombre", "Mujer");
 $lang['CONTACTS'] = array ("Para hablar con un contacto escribe su nombre seguido de dos puntos y tu mensaje será enviado (Ej. NOMBRE:MENSAJE)", "Cargar más", "Por ahora no tienes contactos, te avisaremos cuando alguien te agregue 😉", "Haz click para entrar a su perfil");
 $lang['ASK_PLAY_ADD'] = array ("Agregar a contactos", "Seguir Jugando");
-$lang['CONTACT_USER'] = array ("Que onda ","! ", " te agregó como contacto! Ella ya dio el primer paso te toca a ti! 😏 Para hablar con ella escribe su nombre seguido de dos puntos y tu mensaje será enviado (Ej. ",":MENSAJE)","Que onda ","! Te agregó ",". Deberías escribirle 😉 . Para hablar con ella escribe su nombre seguido de dos puntos y tu mensaje será enviado (Ej. ",":MENSAJE)", "Oye galán, andas con todo! ✌ "," te agregó a sus contactos. Para hablar con ella escribe su nombre seguido de dos puntos y tu mensaje será enviado (Ej. ",":MENSAJE)");
+$lang['CONTACT_USER'] = array ("Que onda ","! ", " te agregó como contacto! Ya dio el primer paso te toca a ti! 😏 Para hablar escribe su nombre seguido de dos puntos y tu mensaje será enviado (Ej. ",":MENSAJE)","Que onda ","! Te agregó ",". Deberías escribirle 😉 . Para hablar escribe su nombre seguido de dos puntos y tu mensaje será enviado (Ej. ",":MENSAJE)", "Oye galán, andas con todo! ✌ "," te agregó a sus contactos. Para hablar escribe su nombre seguido de dos puntos y tu mensaje será enviado (Ej. ",":MENSAJE)");
 $lang['CHANGE_CHANNEL'] = array ("A qué canal te quieres cambiar: ");
 $lang['NEWGAME'] = array ("Haz click para entrar a su perfil", "Ganador","A quién prefieres?? 😏", "Cena en tu casa, llevarías a: ", "Con quién saldrías?? 😜", "Quién se te hace más guapo?? 😍", "Quién te gusta más??", "Quién pasaría el filtro de tus amigas?? 😳","Por el momento no se encuentra nadie en el canal ",", vuelve a intentar más tarde");
 $lang['NEWGAME_bio'] = array ("algo serio", "algo casual", "amigos", "diversion","ir al antro", "ir al cine", "estar con la familia", "hacer ejercicio", "ver netflix", "leer","fuma 🚬", "no fuma 🚭"," esta buscando ",", lo que más le gusta hacer en lo fines es "," y ");
 $lang['SCORE'] = array ("Aun no hay resultados, intenta más tarde", "Es muy pronto para resultados, inténtalo más tarde","A ellos les has ganado: 💪", 'Haz click para entrar a su perfil');
 
+//Super cron:
+
+$lang['CRON_MATCHINTERVIEWS'] = array ("Haz click para entrar a su perfil", "Ganador", "Mira", ", encontramos a dos personas con gustos parecidos a los tuyos. ¿A quién eliges? 😏");
+$lang['CRON_NEWCHANNEL'] = array (", te recomiendo cambiar de vez en cuando de canal para tener mejores resultados ✌");
+$lang['CRON_NEWPEOPLE'] = array ("Hey ", ", hay nuevas personas en el juego! Vamos a jugar 😃");
+$lang['CRON_SCOREMSG'] = array ("Le has ganado a más personas! 👊 Revisa tu puntaje 🎉");
+$lang['CRON_RECOMMENDCONTACT'] = array ("Que onda ","! Deberías hablarle a ","! 😏 Tengo una buena corazonada! 🤖  Para hablar escribe su nombre seguido de dos puntos y tu mensaje será enviado (Ej. ",":MENSAJE)");

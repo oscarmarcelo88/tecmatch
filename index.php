@@ -16,7 +16,7 @@ $token = getenv("token");
 
 require 'files/Functions.php';
 require 'files/ConnectionDb.php';
-include_once 'files/langEN.php';
+//include_once 'files/langES.php';
 
 $data = json_decode(file_get_contents('php://input'), true);
 $rid = $data['entry'][0]['messaging'][0]['sender']['id'];
@@ -36,13 +36,22 @@ list ($nickname, $messageToContact) = split (':',$message);
 
 
 //Para saber si ponemos el login y el getstarted msg
-  $query = 'select fb_id, first_name, gender, block, sexual_orientation, lives_in, studied_at, location, inte1, inte2, inte3, created_at from Users where fb_sender_id='.$rid;
+  $query = 'select fb_id, first_name, locale, gender, block, sexual_orientation, lives_in, studied_at, location, inte1, inte2, inte3, created_at from Users where fb_sender_id='.$rid;
   $results = $connectiondb->Connection($query);
   $results2 = json_decode(json_encode($results), true);
+
+  //decide the language with locale
+  if($results2[0]['locale'] == "es_LA" || $results2[0]['locale'] == "es_ES")
+  {
+      include_once 'files/langES.php';
+  }else{
+      include_once 'files/langEN.php';
+  }
 
   $functions = new Functions($rid, $message, $urlWebhook, $results2[0]['sexual_orientation'], $results2[0]['location'], $results2[0]['first_name'], $results2[0]['gender'], $token);
 
   //unblock it if it's block, because they receive a message delivery
+var_dump($results2);
   $functions->checkBlockUser($results2[0]['block']);
 
 
@@ -80,6 +89,7 @@ list ($nickname, $messageToContact) = split (':',$message);
   if (($results2[0]['fb_id'] == null && $message != null) || $payload == "getstarted")
       {
         $functions->sendTyping();
+        //$functions->sendTextMessage($results2[0]['first_name']);
         $functions->sendLogin($lang['LOGIN_DESCRIPTION'], $lang['LOGIN_OPTION']);
       }
 
@@ -179,12 +189,12 @@ if ($results2[0]['gender'] == 2)
         $functions->newGame($lang['NEWGAME'], $lang['NEWGAME_bio']);
       }
       //Contact the user 
-      if ($message == $lang['OPTION3']) 
+      if ($code2 == "addcontact")
       {
         $functions->sendTyping();
         $functions->changeRelationship($ganadorIdContacto, $perdedorIdContacto);
         $functions->contact($ganadorIdContacto, $lang['CONTACT_USER']); 
-        $query = "select nickname2 from Games WHERE ganadorId =".$ganadorIdContacto." AND jugadorId =".$rid."";
+        $query = "select nickname2 from Games WHERE ganadorId =".$ganadorIdContacto." AND jugadorId =".$rid;
         $results_contacto = $connectiondb->Connection($query);
         $results_contacto2 = json_decode(json_encode($results_contacto), true);
         $replies = array ($lang['ADDCONTACT_1/2'].$results_contacto2[0]['nickname2'].$lang['ADDCONTACT_2/2']);
@@ -199,8 +209,6 @@ if ($results2[0]['gender'] == 2)
       $functions->preguntaMensajePuntaje($lang['CHECK_SCORE'], $lang['OPTION6']);
       //TESTING:
       //$functions->sendLogin($lang['LOGIN_DESCRIPTION'], $lang['LOGIN_OPTION']);
-
-   
     }
     if ($payloadParaContacto == "puntaje")
     {
@@ -254,7 +262,7 @@ if ($results2[0]['gender'] == 2)
   //send message to contact
   if ($messageToContact != null)
   {
-    $functions->sendTextMessageToContact($nickname, $messageToContact, $lang['NOCONTACTS'], $lang['CHAT_WROTE'], $lang['CHAT_REPLY'], $lang['TEXT_CONFIRMBLOCK']);
+      $functions->sendTextMessageToContact($nickname, $messageToContact, $lang['NOCONTACTS'], $lang['CHAT_WROTE'], $lang['CHAT_REPLY'], $lang['TEXT_CONFIRMBLOCK']);
   }
 
   if (strpos($message, 'puto') || strpos($message, 'pendeja') || strpos($message, 'puta') || strpos($message, 'pinche') || strpos($message, 'cabron') || strpos($message, 'pendejo') || strpos($message, 'culo') || strpos($message, 'mames'))
